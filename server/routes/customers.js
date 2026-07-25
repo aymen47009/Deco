@@ -12,6 +12,16 @@ customerRouter.get("/", async (_req, res, next) => {
   }
 });
 
+customerRouter.get("/:id", async (req, res, next) => {
+  try {
+    const item = await Customer.findById(req.params.id);
+    if (!item) return res.status(404).json({ error: "Customer not found" });
+    res.json(item);
+  } catch (e) {
+    next(e);
+  }
+});
+
 customerRouter.post("/", async (req, res, next) => {
   try {
     const item = await Customer.create(req.body || {});
@@ -23,7 +33,10 @@ customerRouter.post("/", async (req, res, next) => {
 
 customerRouter.put("/:id", async (req, res, next) => {
   try {
-    const item = await Customer.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: false });
+    const item = await Customer.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: false,
+    });
     if (!item) return res.status(404).json({ error: "Customer not found" });
     res.json(item);
   } catch (e) {

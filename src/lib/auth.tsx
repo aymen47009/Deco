@@ -1,82 +1,53 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import type { User } from "../types";
+import { api } from "./api";
 
-interface AuthState {
+interface AuthContextValue {
   user: User | null;
-  login: (email: string, password: string) => { ok: boolean; error?: string };
+  loading: boolean;
+  login: (phone: string, password: string) => Promise<void>;
   logout: () => void;
 }
 
-const AuthContext = createContext<AuthState | null>(null);
+const AuthContext = createContext<AuthContextValue | null>(null);
 
-const USERS_KEY = "deco_users_v1";
-const SESSION_KEY = "deco_session_v1";
-
-interface StoredUser extends User {
-  passwordHash: string;
-}
-
-function hash(s: string): string {
-  let h = 0;
-  for (let i = 0; i < s.length; i++) {
-    h = (h << 5) - h + s.charCodeAt(i);
-    h |= 0;
-  }
-  return `h${h}`;
-}
-
-function loadUsers(): StoredUser[] {
-  try {
-    const raw = localStorage.getItem(USERS_KEY);
-    if (!raw) {
-      const seed: StoredUser[] = [
-        { id: "u1", email: "admin@deco.sa", role: "admin", name: "المدير", passwordHash: hash("admin123") },
-        { id: "u2", email: "worker@deco.sa", role: "worker", name: "خالد الدهان", passwordHash: hash("worker123") },
-        { id: "u3", email: "customer@deco.sa", role: "customer", name: "أحمد محمد", passwordHash: hash("cust123") },
-      ];
-      localStorage.setItem(USERS_KEY, JSON.stringify(seed));
-      return seed;
-    }
-    return JSON.parse(raw) as StoredUser[];
-  } catch {
-    return [];
-  }
+export function useAuth() {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
+  return ctx;
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(SESSION_KEY);
-      if (raw) setUser(JSON.parse(raw) as User);
-    } catch {
-      // ignore
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setLoading(false);
+      return;
     }
+    api.auth
+      .me()
+      .then((u) => setUser(u))
+      .catch(() => localStorage.removeItem("token"))
+      .finally(() => setLoading(false));
   }, []);
 
-  const login = (email: string, password: string) => {
-    const users = loadUsers();
-    const found = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
-    if (!found) return { ok: false, error: "البريد غير مسجّل" };
-    if (found.passwordHash !== hash(password)) return { ok: false, error: "كلمة المرور غير صحيحة" };
-    const safe: User = { id: found.id, email: found.email, role: found.role, name: found.name };
-    setUser(safe);
-    localStorage.setItem(SESSION_KEY, JSON.stringify(safe));
-    return { ok: true };
+  const login = async (phone: string, password: string) => {
+    const res = await api.auth.login(phone, password);
+    localStorage.setItem("token", res.token);
+    setUser(res.user);
   };
 
   const logout = () => {
+    localStorage.removeItem("token");
     setUser(null);
-    localStorage.removeItem(SESSION_KEY);
   };
 
-  const value = useMemo(() => ({ user, login, logout }), [user]);
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
-
-export function useAuth(): AuthState {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
-  return ctx;
+  return (
+    <AuthContext.Provider value={{ user, loading, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
 }

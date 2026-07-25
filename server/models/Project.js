@@ -1,18 +1,42 @@
 import mongoose from "mongoose";
 
+const ImageItemSchema = new mongoose.Schema(
+  {
+    url: String,
+    category: { type: String, enum: ["request", "progress", "completion"], default: "request" },
+    uploadedAt: { type: Date, default: Date.now },
+  },
+  { _id: true }
+);
+
+const FinancialSchema = new mongoose.Schema(
+  {
+    totalCost: { type: Number, default: 0 },
+    workerFee: { type: Number, default: 0 },
+    customerPaid: { type: Boolean, default: false },
+    workerPaid: { type: Boolean, default: false },
+  },
+  { _id: false }
+);
+
 const ProjectSchema = new mongoose.Schema(
   {
-    code: { type: String, required: true, unique: true },
     title: { type: String, required: true },
-    customerId: { type: mongoose.Schema.Types.ObjectId, ref: "Customer", required: true },
+    description: { type: String, default: "" },
+    customerId: { type: mongoose.Schema.Types.ObjectId, ref: "Customer" },
+    workerId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    status: {
+      type: String,
+      enum: ["pending", "in_progress", "validated", "paid"],
+      default: "pending",
+    },
+    type: { type: String, enum: ["decor", "placo", "pmma", "other"], default: "decor" },
     city: { type: String, default: "" },
     area: { type: Number, default: 0 },
-    type: { type: String, default: "decor" },
-    status: { type: String, default: "pending" },
-    images: { type: [String], default: [] },
-    notes: { type: String, default: "" },
-    startDate: { type: Date },
-    endDate: { type: Date },
+    images: [ImageItemSchema],
+    financials: { type: FinancialSchema, default: () => ({}) },
+    validatedAt: { type: Date },
+    completedAt: { type: Date },
   },
   { strict: false, timestamps: true }
 );
