@@ -1,28 +1,27 @@
 {
   "name": "decoworkshops",
+  "version": "1.0.4",
   "private": true,
-  "version": "1.0.3",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "prebuild": "if git rev-parse --git-dir > /dev/null 2>&1; then rm -rf src && git checkout -- src/; fi",
-    "build": "npm run prebuild && tsc -b && vite build",
+    "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "typecheck": "npm run prebuild && tsc -b --noEmit"
+    "typecheck": "tsc -b --noEmit"
   },
   "dependencies": {
-    "lucide-react": "^0.439.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "lucide-react": "^0.453.0"
   },
   "devDependencies": {
-    "@types/react": "^18.3.5",
-    "@types/react-dom": "^18.3.0",
-    "@vitejs/plugin-react": "^4.3.1",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.3",
     "autoprefixer": "^10.4.20",
-    "postcss": "^8.4.45",
-    "tailwindcss": "^3.4.10",
-    "typescript": "^5.5.4",
-    "vite": "^5.4.3"
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.15",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.11"
   }
 }

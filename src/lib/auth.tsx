@@ -1,73 +1,82 @@
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
-import type { Session, User } from '@supabase/supabase-js';
-import { supabase } from './supabase';
-import { navigate } from './router';
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import type { User } from "../types";
 
-export type AuthRole = 'worker' | 'admin' | null;
-
-interface AuthContextValue {
-  role: AuthRole;
+interface AuthState {
   user: User | null;
-  workerId: string | null;
-  loading: boolean;
-  signIn: (email: string, password: string) => Promise<{ ok: boolean; error?: string }>;
-  signOut: () => Promise<void>;
+  login: (email: string, password: string) => { ok: boolean; error?: string };
+  logout: () => void;
 }
 
-function roleFromUser(user: User | null): AuthRole {
-  const r = user?.app_metadata?.role;
-  return r === 'admin' || r === 'worker' ? r : null;
+const AuthContext = createContext<AuthState | null>(null);
+
+const USERS_KEY = "deco_users_v1";
+const SESSION_KEY = "deco_session_v1";
+
+interface StoredUser extends User {
+  passwordHash: string;
 }
 
-function workerIdFromUser(user: User | null): string | null {
-  return (user?.app_metadata?.worker_id as string | undefined) ?? null;
+function hash(s: string): string {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) {
+    h = (h << 5) - h + s.charCodeAt(i);
+    h |= 0;
+  }
+  return `h${h}`;
 }
 
-const AuthContext = createContext<AuthContextValue | null>(null);
+function loadUsers(): StoredUser[] {
+  try {
+    const raw = localStorage.getItem(USERS_KEY);
+    if (!raw) {
+      const seed: StoredUser[] = [
+        { id: "u1", email: "admin@deco.sa", role: "admin", name: "المدير", passwordHash: hash("admin123") },
+        { id: "u2", email: "worker@deco.sa", role: "worker", name: "خالد الدهان", passwordHash: hash("worker123") },
+        { id: "u3", email: "customer@deco.sa", role: "customer", name: "أحمد محمد", passwordHash: hash("cust123") },
+      ];
+      localStorage.setItem(USERS_KEY, JSON.stringify(seed));
+      return seed;
+    }
+    return JSON.parse(raw) as StoredUser[];
+  } catch {
+    return [];
+  }
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    let mounted = true;
-    supabase.auth.getSession().then(({ data }) => {
-      if (!mounted) return;
-      setSession(data.session);
-      setLoading(false);
-    });
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, newSession) => {
-      setSession(newSession);
-      setLoading(false);
-    });
-    return () => { mounted = false; sub.subscription.unsubscribe(); };
+    try {
+      const raw = localStorage.getItem(SESSION_KEY);
+      if (raw) setUser(JSON.parse(raw) as User);
+    } catch {
+      // ignore
+    }
   }, []);
 
-  const signIn = useCallback(async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
-    if (error) return { ok: false, error: error.message };
+  const login = (email: string, password: string) => {
+    const users = loadUsers();
+    const found = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
+    if (!found) return { ok: false, error: "البريد غير مسجّل" };
+    if (found.passwordHash !== hash(password)) return { ok: false, error: "كلمة المرور غير صحيحة" };
+    const safe: User = { id: found.id, email: found.email, role: found.role, name: found.name };
+    setUser(safe);
+    localStorage.setItem(SESSION_KEY, JSON.stringify(safe));
     return { ok: true };
-  }, []);
+  };
 
-  const signOut = useCallback(async () => {
-    await supabase.auth.signOut();
-    setSession(null);
-    navigate('/track');
-  }, []);
+  const logout = () => {
+    setUser(null);
+    localStorage.removeItem(SESSION_KEY);
+  };
 
-  const user = session?.user ?? null;
-  const role = roleFromUser(user);
-  const workerId = workerIdFromUser(user);
-
-  return (
-    <AuthContext.Provider value={{ role, user, workerId, loading, signIn, signOut }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  const value = useMemo(() => ({ user, login, logout }), [user]);
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-export function useAuth() {
+export function useAuth(): AuthState {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
+  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
   return ctx;
 }

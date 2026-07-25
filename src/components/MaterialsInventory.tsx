@@ -1,182 +1,119 @@
-import { useState } from 'react';
-import { Package, Plus, CreditCard as Edit3, Trash2, Layers, Palette, Lightbulb, Wrench, Box, CheckCircle2, AlertTriangle, RotateCcw } from 'lucide-react';
-import { useApp } from '../context/AppContext';
-import { useToast } from './ui/Toast';
-import { Modal } from './ui/Modal';
-import { ConfirmDialog } from './ui/ConfirmDialog';
-import { formatDZD } from '../lib/pricing';
-import type { Material, MaterialCategory } from '../types';
-import { MATERIAL_CATEGORY_LABELS } from '../types';
+import { useState } from "react";
+import { Plus, Package, TriangleAlert as AlertTriangle } from "lucide-react";
+import { useApp } from "../context/AppContext";
+import { MATERIAL_CATEGORY_LABELS, type MaterialCategory } from "../types";
+import { formatSAR } from "../lib/pricing";
 
-const CATEGORY_ICONS: Record<MaterialCategory, typeof Layers> = {
-  placo: Layers, pvc: Palette, spotlight: Lightbulb, consumable: Wrench,
-};
-
-export function MaterialsInventory() {
-  const { data, addMaterial, updateMaterial, deleteMaterial, toggleBoxOpened } = useApp();
-  const showToast = useToast();
-  const [addOpen, setAddOpen] = useState(false);
-  const [editMaterial, setEditMaterial] = useState<Material | null>(null);
-  const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [resetConfirm, setResetConfirm] = useState(false);
+export default function MaterialsInventory() {
+  const app = useApp();
+  const [show, setShow] = useState(false);
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-5">
-        <div>
-          <h2 className="text-xl font-bold text-navy-800 flex items-center gap-2"><Package size={22} /> قاعدة بيانات المخزون</h2>
-          <p className="text-sm text-slate-500 mt-0.5">إدارة المواد الخام وتتبع المخزون</p>
-        </div>
-        <div className="flex gap-2">
-          <button className="btn-secondary !py-2 text-sm" onClick={() => setResetConfirm(true)}><RotateCcw size={16} /> إعادة تعيين</button>
-          <button className="btn-primary !py-2 text-sm" onClick={() => setAddOpen(true)}><Plus size={16} /> مادة جديدة</button>
-        </div>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-bold">المواد</h2>
+        <button className="btn-primary" onClick={() => setShow(true)}>
+          <Plus className="h-4 w-4" /> مادة جديدة
+        </button>
       </div>
 
-      {(Object.keys(MATERIAL_CATEGORY_LABELS) as MaterialCategory[]).map((cat) => {
-        const items = data.materials.filter((m) => m.category === cat);
-        if (items.length === 0) return null;
-        const Icon = CATEGORY_ICONS[cat];
-        return (
-          <div key={cat} className="mb-6">
-            <h3 className="font-bold text-navy-700 mb-3 flex items-center gap-2">
-              <Icon size={18} /> {MATERIAL_CATEGORY_LABELS[cat]}
-              <span className="text-xs text-slate-400 font-normal">({items.length})</span>
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {items.map((m) => (
-                <div key={m.id} className="card p-4">
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="flex items-start gap-2">
-                      <div className="w-9 h-9 bg-navy-50 rounded-lg flex items-center justify-center shrink-0"><Icon size={18} className="text-navy-600" /></div>
-                      <div>
-                        <p className="font-bold text-navy-800 text-sm leading-tight">{m.name}</p>
-                        <p className="text-xs text-slate-400">لكل {m.unit}</p>
-                      </div>
-                    </div>
-                    <div className="flex gap-1">
-                      <button onClick={() => setEditMaterial(m)} className="p-1.5 rounded-lg text-slate-400 hover:bg-navy-50 hover:text-navy-600"><Edit3 size={15} /></button>
-                      <button onClick={() => setDeleteId(m.id)} className="p-1.5 rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-600"><Trash2 size={15} /></button>
-                    </div>
+      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+        {app.materials.map((m) => {
+          const low = m.stock <= m.minStock;
+          return (
+            <div key={m.id} className="card p-4">
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="grid h-10 w-10 place-items-center rounded-xl bg-slate-100 text-slate-600">
+                    <Package className="h-5 w-5" />
                   </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <div>
-                      <p className="text-slate-500">السعر: <span className="font-bold text-navy-700">{formatDZD(m.unitCost)}</span></p>
-                      <p className="text-slate-500">المخزون: <span className={`font-bold ${m.stock < 5 ? 'text-red-600' : 'text-navy-700'}`}>{m.stock} {m.unit}</span></p>
-                    </div>
+                  <div>
+                    <p className="font-bold">{m.name}</p>
+                    <p className="text-xs text-slate-500">{MATERIAL_CATEGORY_LABELS[m.category]}</p>
                   </div>
-
-                  {m.category === 'consumable' && (
-                    <div className="mt-3 pt-3 border-t border-slate-100">
-                      <button onClick={() => toggleBoxOpened(m.id)}
-                        className={`w-full flex items-center justify-between p-2 rounded-lg text-xs font-semibold transition-colors ${m.boxOpened ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-slate-50 text-slate-500 border border-slate-200'}`}>
-                        <span className="flex items-center gap-1.5"><Box size={14} />{m.boxOpened ? 'علبة مفتوحة - التكلفة 0 دج للمشاريع التالية' : 'علبة مغلقة'}</span>
-                        {m.boxOpened ? <CheckCircle2 size={14} /> : <AlertTriangle size={14} />}
-                      </button>
-                      {!m.boxOpened && <p className="text-[10px] text-slate-400 mt-1">عند الفتح: تُحسب التكلفة الكاملة لأول مشروع</p>}
-                    </div>
-                  )}
                 </div>
-              ))}
+                {low && (
+                  <span className="chip bg-rose-100 text-rose-700">
+                    <AlertTriangle className="h-3 w-3" /> منخفض
+                  </span>
+                )}
+              </div>
+              <div className="mt-3 flex items-center justify-between text-sm">
+                <span className={low ? "font-bold text-rose-600" : "text-slate-700"}>
+                  {m.stock} {m.unit}
+                </span>
+                <span className="font-semibold text-brand-700">{formatSAR(m.price)}</span>
+              </div>
             </div>
+          );
+        })}
+        {app.materials.length === 0 && (
+          <div className="card col-span-full grid place-items-center p-10 text-slate-400">
+            <Package className="mb-2 h-8 w-8" /> لا توجد مواد
           </div>
-        );
-      })}
+        )}
+      </div>
 
-      {addOpen && (
-        <MaterialFormModal onClose={() => setAddOpen(false)}
-          onSubmit={async (d) => {
-            try {
-              await addMaterial(d);
-              showToast('تمت إضافة المادة بنجاح', 'success');
-              setAddOpen(false);
-            } catch (e) {
-              showToast(e instanceof Error ? e.message : 'فشلت الإضافة', 'error');
-            }
-          }} />
-      )}
-      {editMaterial && (
-        <MaterialFormModal material={editMaterial} onClose={() => setEditMaterial(null)}
-          onSubmit={async (d) => {
-            try {
-              await updateMaterial(editMaterial.id, d);
-              showToast('تم تحديث المادة', 'success');
-              setEditMaterial(null);
-            } catch (e) {
-              showToast(e instanceof Error ? e.message : 'فشل التحديث', 'error');
-            }
-          }} />
-      )}
-
-      <ConfirmDialog open={!!deleteId} title="حذف المادة" danger
-        message="هل أنت متأكد من حذف هذه المادة من المخزون؟ لا يمكن التراجع." confirmLabel="حذف"
-        onConfirm={() => { if (deleteId) { deleteMaterial(deleteId); } setDeleteId(null); }}
-        onCancel={() => setDeleteId(null)} />
-
-      <ConfirmDialog open={resetConfirm} title="إعادة تعيين البيانات" danger
-        message="هذه الميزة غير متاحة بعد ربط قاعدة البيانات." confirmLabel="إغلاق"
-        onConfirm={() => setResetConfirm(false)}
-        onCancel={() => setResetConfirm(false)} />
+      {show && <AddModal onClose={() => setShow(false)} />}
     </div>
   );
 }
 
-function MaterialFormModal({ material, onClose, onSubmit }: {
-  material?: Material; onClose: () => void; onSubmit: (data: Omit<Material, 'id'>) => void;
-}) {
+function AddModal({ onClose }: { onClose: () => void }) {
+  const app = useApp();
   const [form, setForm] = useState({
-    name: material?.name ?? '',
-    category: material?.category ?? ('placo' as MaterialCategory),
-    unit: material?.unit ?? 'لوح',
-    unitCost: material?.unitCost?.toString() ?? '',
-    stock: material?.stock?.toString() ?? '0',
+    name: "",
+    category: "paint" as MaterialCategory,
+    unit: "",
+    stock: 0,
+    minStock: 0,
+    price: 0,
   });
-  const [error, setError] = useState('');
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!form.name.trim()) { setError('الرجاء إدخال اسم المادة'); return; }
-    const cost = parseFloat(form.unitCost);
-    if (isNaN(cost) || cost < 0) { setError('الرجاء إدخال سعر صحيح'); return; }
-    onSubmit({
-      name: form.name.trim(), category: form.category,
-      unit: form.unit.trim() || 'وحدة', unitCost: cost,
-      stock: parseInt(form.stock) || 0,
-      boxOpened: material?.boxOpened ?? false,
-      boxOpenedForJobId: material?.boxOpenedForJobId,
-    });
-  }
+  const submit = () => {
+    if (!form.name || !form.unit) return;
+    app.addMaterial(form);
+    onClose();
+  };
 
   return (
-    <Modal open onClose={onClose} title={material ? 'تعديل المادة' : 'مادة جديدة'} size="md">
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="label-field">اسم المادة *</label>
-          <input className="input-field" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="مثال: لوح بلاكو 1.2x2.5م" />
-        </div>
-        <div>
-          <label className="label-field">الفئة *</label>
-          <select className="input-field" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value as MaterialCategory })}>
-            {(Object.keys(MATERIAL_CATEGORY_LABELS) as MaterialCategory[]).map((c) => <option key={c} value={c}>{MATERIAL_CATEGORY_LABELS[c]}</option>)}
-          </select>
-        </div>
-        <div className="grid grid-cols-3 gap-3">
+    <div className="fixed inset-0 z-50 grid place-items-center bg-slate-900/40 p-4" onClick={onClose}>
+      <div className="card w-full max-w-lg p-5" onClick={(e) => e.stopPropagation()}>
+        <h3 className="mb-4 text-lg font-bold">مادة جديدة</h3>
+        <div className="space-y-3">
           <div>
-            <label className="label-field">الوحدة</label>
-            <input className="input-field" value={form.unit} onChange={(e) => setForm({ ...form, unit: e.target.value })} placeholder="لوح / قطعة / علبة" />
+            <label className="label">الاسم</label>
+            <input className="input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
           </div>
-          <div>
-            <label className="label-field">السعر (دج) *</label>
-            <input type="number" className="input-field" value={form.unitCost} onChange={(e) => setForm({ ...form, unitCost: e.target.value })} min="0" />
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="label">الفئة</label>
+              <select className="input" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value as MaterialCategory })}>
+                {Object.entries(MATERIAL_CATEGORY_LABELS).map(([k, v]) => (
+                  <option key={k} value={k}>{v}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="label">الوحدة</label>
+              <input className="input" value={form.unit} onChange={(e) => setForm({ ...form, unit: e.target.value })} />
+            </div>
+            <div>
+              <label className="label">المخزون</label>
+              <input type="number" className="input" value={form.stock} onChange={(e) => setForm({ ...form, stock: +e.target.value })} />
+            </div>
+            <div>
+              <label className="label">حد التنبيه</label>
+              <input type="number" className="input" value={form.minStock} onChange={(e) => setForm({ ...form, minStock: +e.target.value })} />
+            </div>
+            <div>
+              <label className="label">السعر</label>
+              <input type="number" className="input" value={form.price} onChange={(e) => setForm({ ...form, price: +e.target.value })} />
+            </div>
           </div>
-          <div>
-            <label className="label-field">المخزون</label>
-            <input type="number" className="input-field" value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} min="0" />
-          </div>
+          <button className="btn-primary w-full" onClick={submit}>إضافة</button>
         </div>
-        {error && <p className="text-red-500 text-sm">{error}</p>}
-        <button type="submit" className="btn-primary w-full">{material ? 'حفظ التعديلات' : 'إضافة المادة'}</button>
-      </form>
-    </Modal>
+      </div>
+    </div>
   );
 }

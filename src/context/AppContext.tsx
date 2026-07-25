@@ -1,146 +1,172 @@
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
-import type { AppData, Job, Worker, Material, InspectionData, ExecutionData, PropertyType } from '../types';
-import * as db from '../lib/storage';
-import { supabase } from '../lib/supabase';
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import type {
+  AppData,
+  Job,
+  Worker,
+  Material,
+  Customer,
+  JobStatus,
+  MaterialCategory,
+  PropertyType,
+  JobComplexity,
+  ReturnMethod,
+} from "../types";
+import {
+  loadData,
+  saveData,
+  resetData,
+  newJob,
+  newWorker,
+  newMaterial,
+  newBid,
+  newInspection,
+  newExecution,
+  setStatus,
+  genId,
+} from "../lib/storage";
 
-interface AppContextValue {
-  data: AppData;
-  loading: boolean;
-  error: string | null;
-  refresh: () => Promise<void>;
-  addJob: (job: { clientName: string; clientPhone: string; propertyType: PropertyType; city: string; estimatedArea: number }) => Promise<Job>;
-  updateJob: (id: string, patch: Partial<Job>) => Promise<void>;
-  getJobByTracking: (code: string) => Promise<Job | null>;
-  addBid: (jobId: string, bid: { workerId: string; workerName: string; earliestInspection: string; proposedStart: string; note?: string }) => Promise<void>;
-  assignWorker: (jobId: string, workerId: string, workerName: string) => Promise<void>;
-  saveInspection: (jobId: string, data: InspectionData) => Promise<void>;
-  saveExecution: (jobId: string, data: ExecutionData) => Promise<void>;
-  addWorker: (worker: Omit<Worker, 'id' | 'rating' | 'jobsCompleted'>) => Promise<void>;
-  addMaterial: (m: Omit<Material, 'id'>) => Promise<void>;
-  updateMaterial: (id: string, patch: Partial<Material>) => Promise<void>;
-  deleteMaterial: (id: string) => Promise<void>;
-  toggleBoxOpened: (materialId: string, jobId?: string) => Promise<void>;
-  setAdminProfitSplit: (v: number) => Promise<void>;
+interface AppContextValue extends AppData {
+  addCustomer: (p: { name: string; phone: string; city: string }) => Customer;
+  addWorker: (p: { name: string; phone: string; city: string; specialty: string }) => void;
+  addMaterial: (p: {
+    name: string;
+    category: MaterialCategory;
+    unit: string;
+    stock: number;
+    minStock: number;
+    price: number;
+  }) => void;
+  addJob: (p: {
+    customerId: string;
+    title: string;
+    description: string;
+    propertyType: PropertyType;
+    city: string;
+    complexity: JobComplexity;
+    returnMethod: ReturnMethod;
+  }) => void;
+  updateJob: (id: string, patch: Partial<Job>) => void;
+  setJobStatus: (id: string, status: JobStatus) => void;
+  assignWorker: (jobId: string, workerId: string, price: number) => void;
+  placeBid: (jobId: string, workerId: string, amount: number, note?: string) => void;
+  addJobMaterial: (jobId: string, materialId: string, quantity: number) => void;
+  completeInspection: (jobId: string, passed: boolean, notes: string, inspectorId: string) => void;
+  updateProgress: (jobId: string, progress: number) => void;
+  reset: () => void;
 }
 
-const AppContext = createContext<AppContextValue | null>(null);
-
-const EMPTY_DATA: AppData = { jobs: [], workers: [], materials: [], adminProfitSplit: 60 };
+const Ctx = createContext<AppContextValue | null>(null);
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [data, setData] = useState<AppData>(EMPTY_DATA);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const refresh = useCallback(async () => {
-    try {
-      const next = await db.loadAppData();
-      setData(next);
-      setError(null);
-    } catch (e) {
-      console.error('[AppContext] loadAppData failed:', e);
-      setError(e instanceof Error ? e.message : 'Failed to load data');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const [data, setData] = useState<AppData>(() => loadData());
 
   useEffect(() => {
-    refresh();
-  }, [refresh]);
+    saveData(data);
+  }, [data]);
 
-  // Realtime: refetch on any change to operational tables.
-  useEffect(() => {
-    const channel = supabase
-      .channel('app-realtime')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'projects' }, () => refresh())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'job_bids' }, () => refresh())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'job_photos' }, () => refresh())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'job_measurements' }, () => refresh())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'workers' }, () => refresh())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'materials' }, () => refresh())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'app_settings' }, () => refresh())
-      .subscribe((status, err) => {
-        if (err) console.error('[AppContext] realtime error:', err);
-        if (status === 'CHANNEL_ERROR') console.error('[AppContext] realtime channel error');
-      });
-    return () => { supabase.removeChannel(channel); };
-  }, [refresh]);
+  const value = useMemo<AppContextValue>(() => {
+    const update = (fn: (d: AppData) => AppData) => setData((prev) => fn(structuredClone(prev)));
 
-  const addJob = useCallback<AppContextValue['addJob']>(async (job) => {
-    return db.createProject(job);
-  }, []);
+    return {
+      ...data,
+      addCustomer: (p) => {
+        const c: Customer = { id: genId("c"), ...p, createdAt: new Date().toISOString() };
+        update((d) => {
+          d.customers.push(c);
+          return d;
+        });
+        return c;
+      },
+      addWorker: (p) =>
+        update((d) => {
+          d.workers.push(newWorker(p));
+          return d;
+        }),
+      addMaterial: (p) =>
+        update((d) => {
+          d.materials.push(newMaterial(p));
+          return d;
+        }),
+      addJob: (p) =>
+        update((d) => {
+          d.jobs.push(newJob(p));
+          return d;
+        }),
+      updateJob: (id, patch) =>
+        update((d) => {
+          const i = d.jobs.findIndex((j) => j.id === id);
+          if (i >= 0) d.jobs[i] = { ...d.jobs[i], ...patch, updatedAt: new Date().toISOString() };
+          return d;
+        }),
+      setJobStatus: (id, status) =>
+        update((d) => {
+          const i = d.jobs.findIndex((j) => j.id === id);
+          if (i >= 0) d.jobs[i] = setStatus(d.jobs[i], status);
+          return d;
+        }),
+      assignWorker: (jobId, workerId, price) =>
+        update((d) => {
+          const j = d.jobs.find((j) => j.id === jobId);
+          if (j) {
+            j.assignedWorkerId = workerId;
+            j.price = price;
+            j.status = "assigned";
+            j.execution = newExecution();
+            j.updatedAt = new Date().toISOString();
+          }
+          return d;
+        }),
+      placeBid: (jobId, workerId, amount, note) =>
+        update((d) => {
+          const j = d.jobs.find((j) => j.id === jobId);
+          if (j) j.bids.push(newBid({ workerId, amount, note }));
+          return d;
+        }),
+      addJobMaterial: (jobId, materialId, quantity) =>
+        update((d) => {
+          const j = d.jobs.find((j) => j.id === jobId);
+          if (j) {
+            const existing = j.materials.find((m) => m.materialId === materialId);
+            if (existing) existing.quantity += quantity;
+            else j.materials.push({ materialId, quantity });
+            const mat = d.materials.find((m) => m.id === materialId);
+            if (mat) mat.stock = Math.max(0, mat.stock - quantity);
+          }
+          return d;
+        }),
+      completeInspection: (jobId, passed, notes, inspectorId) =>
+        update((d) => {
+          const j = d.jobs.find((j) => j.id === jobId);
+          if (j) {
+            j.inspection = newInspection({ passed, notes, inspectorId });
+            j.status = passed ? "done" : "in_progress";
+            j.updatedAt = new Date().toISOString();
+          }
+          return d;
+        }),
+      updateProgress: (jobId, progress) =>
+        update((d) => {
+          const j = d.jobs.find((j) => j.id === jobId);
+          if (j && j.execution) {
+            j.execution.progress = Math.min(100, Math.max(0, progress));
+            if (j.execution.progress >= 100) {
+              j.status = "inspection";
+              j.execution.endDate = new Date().toISOString();
+            }
+          }
+          return d;
+        }),
+      reset: () => setData(resetData()),
+    };
+  }, [data]);
 
-  const updateJob = useCallback<AppContextValue['updateJob']>(async (id, patch) => {
-    await db.updateProject(id, patch);
-  }, []);
-
-  const getJobByTracking = useCallback<AppContextValue['getJobByTracking']>(async (code) => {
-    return db.getProjectByTracking(code);
-  }, []);
-
-  const addBid = useCallback<AppContextValue['addBid']>(async (jobId, bid) => {
-    await db.addBid(jobId, bid);
-  }, []);
-
-  const assignWorker = useCallback<AppContextValue['assignWorker']>(async (jobId, workerId, workerName) => {
-    await db.updateProject(jobId, {
-      assignedWorkerId: workerId,
-      assignedWorkerName: workerName,
-      status: 'inspecting',
-    });
-  }, []);
-
-  const saveInspection = useCallback<AppContextValue['saveInspection']>(async (jobId, d) => {
-    await db.saveInspection(jobId, d);
-  }, []);
-
-  const saveExecution = useCallback<AppContextValue['saveExecution']>(async (jobId, d) => {
-    await db.saveExecution(jobId, d);
-  }, []);
-
-  const addWorker = useCallback<AppContextValue['addWorker']>(async (worker) => {
-    await db.createWorker(worker);
-  }, []);
-
-  const addMaterial = useCallback<AppContextValue['addMaterial']>(async (m) => {
-    await db.createMaterial(m);
-  }, []);
-
-  const updateMaterial = useCallback<AppContextValue['updateMaterial']>(async (id, patch) => {
-    await db.updateMaterial(id, patch);
-  }, []);
-
-  const deleteMaterial = useCallback<AppContextValue['deleteMaterial']>(async (id) => {
-    await db.deleteMaterial(id);
-  }, []);
-
-  const toggleBoxOpened = useCallback<AppContextValue['toggleBoxOpened']>(async (materialId) => {
-    const mat = data.materials.find((m) => m.id === materialId);
-    if (!mat) return;
-    await db.updateMaterial(materialId, {
-      boxOpened: !mat.boxOpened,
-      boxOpenedForJobId: !mat.boxOpened ? materialId : undefined,
-    });
-  }, [data.materials]);
-
-  const setAdminProfitSplit = useCallback<AppContextValue['setAdminProfitSplit']>(async (v) => {
-    await db.setAdminProfitSplit(v);
-  }, []);
-
-  const value: AppContextValue = {
-    data, loading, error, refresh,
-    addJob, updateJob, getJobByTracking, addBid, assignWorker,
-    saveInspection, saveExecution, addWorker,
-    addMaterial, updateMaterial, deleteMaterial, toggleBoxOpened,
-    setAdminProfitSplit,
-  };
-
-  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
+  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 
-export function useApp() {
-  const ctx = useContext(AppContext);
-  if (!ctx) throw new Error('useApp must be used within AppProvider');
+export function useApp(): AppContextValue {
+  const ctx = useContext(Ctx);
+  if (!ctx) throw new Error("useApp must be used within AppProvider");
   return ctx;
 }
+
+export type { Job, Worker, Material };
