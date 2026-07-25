@@ -1,12 +1,5 @@
 {
   "buildCommand": "npm run build",
   "installCommand": "npm install",
-  "framework": "vite",
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/node",
-      "cacheDisabled": true
-    }
-  ]
+  "framework": "vite"
 }
