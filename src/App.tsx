@@ -1,8 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  Plus, FolderKanban, Users, Phone, MapPin, Ruler, Hash,
-  Trash2, Pencil, ImagePlus, Loader2, AlertCircle, X,
-} from "lucide-react";
+import { Plus, FolderKanban, Users, Phone, MapPin, Ruler, Hash, Trash2, Pencil, ImagePlus, Loader as Loader2, CircleAlert as AlertCircle, X } from "lucide-react";
 import { api } from "./lib/api";
 import type { Customer, Project, ProjectStatus, ProjectType } from "./types";
 import {
