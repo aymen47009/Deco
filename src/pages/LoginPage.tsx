@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { ShieldCheck, Loader as Loader2, Phone, Lock } from "lucide-react";
+import { ShieldCheck, Loader2, Phone, Lock } from "lucide-react";
 import { useAuth } from "../lib/auth";
 import { useToast } from "../lib/toast";
 
@@ -50,7 +50,7 @@ export function LoginPage() {
               <label className="label">رقم الهاتف</label>
               <div className="relative">
                 <Phone className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-brand-300" />
-                <input className="input pr-9" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="06xx xxx xxx" />
+                <input className="input pr-9" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="admin أو 06xx xxx xxx" />
               </div>
             </div>
             <div>

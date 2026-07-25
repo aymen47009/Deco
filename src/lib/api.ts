@@ -53,8 +53,6 @@ export const api = {
   },
   customers: {
     list: () => req<Customer[]>("/customers"),
-    create: (c: Partial<Customer>) => req<Customer>("/customers", { method: "POST", body: JSON.stringify(c) }),
-    remove: (id: string) => req<{ ok: boolean }>(`/customers/${id}`, { method: "DELETE" }),
   },
   workers: {
     list: () => req<User[]>("/workers"),

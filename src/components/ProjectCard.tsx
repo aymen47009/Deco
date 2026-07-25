@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { Project } from "../types";
 import { IMAGE_CATEGORY_LABELS } from "../types";
-import { Camera, CircleCheck as CheckCircle2, Clock, DollarSign, User as UserIcon, MapPin, Ruler, Hash } from "lucide-react";
+import { Camera, CheckCircle2, DollarSign, User as UserIcon, MapPin, Ruler, Hash } from "lucide-react";
 import { Lightbox } from "./Lightbox";
 import {
   PROJECT_TYPE_LABELS, PROJECT_STATUS_LABELS, STATUS_STYLES,
@@ -39,7 +39,7 @@ export function ProjectCard({ project, onEdit, onValidate, onCustomerPaid, onWor
           </div>
         )}
         {!allImgs[0] && (
-          <div className="flex h-28 items-center justify-center bg-brand-50">
+          <div className="relative flex h-28 items-center justify-center bg-brand-50">
             <Camera className="h-8 w-8 text-brand-300" />
             <span className={`chip absolute right-3 top-3 ${STATUS_STYLES[project.status]}`}>
               {PROJECT_STATUS_LABELS[project.status]}
@@ -170,5 +170,3 @@ function ImageSection({ label, urls, onOpen }: { label: string; urls: string[]; 
     </div>
   );
 }
-
-export { Clock };

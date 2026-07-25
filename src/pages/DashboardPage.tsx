@@ -58,62 +58,35 @@ export function DashboardPage() {
     total: projects.length,
     pending: projects.filter((p) => p.status === "pending").length,
     inProgress: projects.filter((p) => p.status === "in_progress").length,
-    validated: projects.filter((p) => p.status === "validated").length,
     paid: projects.filter((p) => p.status === "paid").length,
   };
 
   const handleValidate = async (id: string) => {
-    try {
-      await api.projects.validate(id);
-      toast("تمت مصادقة المشروع", "success");
-      void load();
-    } catch (e) {
-      toast(e instanceof Error ? e.message : "فشل", "error");
-    }
+    try { await api.projects.validate(id); toast("تمت مصادقة المشروع", "success"); void load(); }
+    catch (e) { toast(e instanceof Error ? e.message : "فشل", "error"); }
   };
 
   const handleCustomerPaid = async (id: string) => {
     if (!confirm("تأكيد استلام المبلغ من العميل؟")) return;
-    try {
-      await api.projects.customerPaid(id);
-      toast("تم تسجيل دفع العميل وإضافة أتعاب العامل", "success");
-      void load();
-    } catch (e) {
-      toast(e instanceof Error ? e.message : "فشل", "error");
-    }
+    try { await api.projects.customerPaid(id); toast("تم تسجيل دفع العميل وإضافة أتعاب العامل", "success"); void load(); }
+    catch (e) { toast(e instanceof Error ? e.message : "فشل", "error"); }
   };
 
   const handleWorkerPaid = async (id: string) => {
     if (!confirm("تأكيد دفع مستحقات العامل؟")) return;
-    try {
-      await api.projects.workerPaid(id);
-      toast("تم تسجيل دفع العامل", "success");
-      void load();
-    } catch (e) {
-      toast(e instanceof Error ? e.message : "فشل", "error");
-    }
+    try { await api.projects.workerPaid(id); toast("تم تسجيل دفع العامل", "success"); void load(); }
+    catch (e) { toast(e instanceof Error ? e.message : "فشل", "error"); }
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm("حذف هذا المشروع نهائياً؟")) return;
-    try {
-      await api.projects.remove(id);
-      toast("تم حذف المشروع", "success");
-      void load();
-    } catch (e) {
-      toast(e instanceof Error ? e.message : "فشل", "error");
-    }
+    try { await api.projects.remove(id); toast("تم حذف المشروع", "success"); void load(); }
+    catch (e) { toast(e instanceof Error ? e.message : "فشل", "error"); }
   };
 
   const handleAddImages = async (projectId: string, urls: string[], category: string) => {
-    try {
-      await api.projects.addImages(projectId, urls, category);
-      toast("تمت إضافة الصور", "success");
-      setAddImagesFor(null);
-      void load();
-    } catch (e) {
-      toast(e instanceof Error ? e.message : "فشل", "error");
-    }
+    try { await api.projects.addImages(projectId, urls, category); toast("تمت إضافة الصور", "success"); setAddImagesFor(null); void load(); }
+    catch (e) { toast(e instanceof Error ? e.message : "فشل", "error"); }
   };
 
   return (
@@ -190,14 +163,8 @@ export function DashboardPage() {
           workers={workers}
           onClose={() => setAssignProject(null)}
           onAssign={async (id, data) => {
-            try {
-              await api.projects.assign(id, data);
-              toast("تم تعيين المشروع وتحديد الأسعار", "success");
-              setAssignProject(null);
-              void load();
-            } catch (e) {
-              toast(e instanceof Error ? e.message : "فشل", "error");
-            }
+            try { await api.projects.assign(id, data); toast("تم تعيين المشروع وتحديد الأسعار", "success"); setAssignProject(null); void load(); }
+            catch (e) { toast(e instanceof Error ? e.message : "فشل", "error"); }
           }}
         />
       )}

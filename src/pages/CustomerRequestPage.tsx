@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { ArrowRight, Send, Loader as Loader2 } from "lucide-react";
+import { ArrowRight, Send, Loader2 } from "lucide-react";
 import { api } from "../lib/api";
 import { useToast } from "../lib/toast";
 import { ImageUploader } from "../components/ImageUploader";

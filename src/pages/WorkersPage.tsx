@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { ArrowRight, UserPlus, Users, Trash2, DollarSign, Loader as Loader2 } from "lucide-react";
+import { ArrowRight, UserPlus, Users, Trash2, DollarSign, Loader2 } from "lucide-react";
 import { useAuth } from "../lib/auth";
 import type { User } from "../types";
 import { api } from "../lib/api";
@@ -40,24 +40,14 @@ export function WorkersPage() {
 
   const handlePayDues = async (id: string) => {
     if (!confirm("تأكيد دفع جميع مستحقات هذا العامل؟")) return;
-    try {
-      await api.workers.payDues(id);
-      toast("تم دفع المستحقات", "success");
-      void load();
-    } catch (e) {
-      toast(e instanceof Error ? e.message : "فشل", "error");
-    }
+    try { await api.workers.payDues(id); toast("تم دفع المستحقات", "success"); void load(); }
+    catch (e) { toast(e instanceof Error ? e.message : "فشل", "error"); }
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm("حذف هذا العامل؟")) return;
-    try {
-      await api.workers.remove(id);
-      toast("تم حذف العامل", "success");
-      void load();
-    } catch (e) {
-      toast(e instanceof Error ? e.message : "فشل", "error");
-    }
+    try { await api.workers.remove(id); toast("تم حذف العامل", "success"); void load(); }
+    catch (e) { toast(e instanceof Error ? e.message : "فشل", "error"); }
   };
 
   return (
@@ -140,15 +130,9 @@ function AddWorkerModal({ onClose, onAdded }: { onClose: () => void; onAdded: ()
       return;
     }
     setSaving(true);
-    try {
-      await api.workers.create(form);
-      toast("تمت إضافة العامل بنجاح", "success");
-      onAdded();
-    } catch (e) {
-      toast(e instanceof Error ? e.message : "فشل", "error");
-    } finally {
-      setSaving(false);
-    }
+    try { await api.workers.create(form); toast("تمت إضافة العامل بنجاح", "success"); onAdded(); }
+    catch (e) { toast(e instanceof Error ? e.message : "فشل", "error"); }
+    finally { setSaving(false); }
   };
 
   return (

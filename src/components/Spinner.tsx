@@ -1,4 +1,4 @@
-import { Loader as Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 export function Spinner({ size = 24, className = "" }: { size?: number; className?: string }) {
   return <Loader2 className={`animate-spin text-brand-400 ${className}`} style={{ width: size, height: size }} />;
