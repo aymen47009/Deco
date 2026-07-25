@@ -12,10 +12,7 @@ const projectSchema = new Schema(
     startDate: { type: Date, default: null },
     endDate: { type: Date, default: null },
   },
-  {
-    strict: false,
-    timestamps: true,
-  }
+  { strict: false, timestamps: true }
 );
 
 projectSchema.set("toJSON", {

@@ -11,10 +11,7 @@ const customerSchema = new Schema(
     address: { type: String, default: "" },
     notes: { type: String, default: "" },
   },
-  {
-    strict: false,
-    timestamps: true,
-  }
+  { strict: false, timestamps: true }
 );
 
 customerSchema.set("toJSON", {

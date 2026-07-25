@@ -11,9 +11,7 @@ let isConnected = false;
 
 export async function connectDB() {
   if (isConnected) return;
-
   mongoose.set("strictQuery", true);
-
   try {
     const conn = await mongoose.connect(MONGODB_URI, {
       serverSelectionTimeoutMS: 10000,

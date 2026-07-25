@@ -1,6 +1,4 @@
-const BASE_URL = import.meta.env.VITE_API_URL
-  ? `${import.meta.env.VITE_API_URL}/api`
-  : "/api";
+const BASE_URL = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : "/api";
 
 export class ApiError extends Error {
   status: number;
@@ -18,18 +16,14 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
       headers: { "Content-Type": "application/json" },
       ...options,
     });
-  } catch (err) {
+  } catch {
     throw new ApiError(0, "Cannot reach the server. Please check your connection and try again.");
   }
 
   let data: unknown = null;
   const text = await res.text();
   if (text) {
-    try {
-      data = JSON.parse(text);
-    } catch {
-      data = text;
-    }
+    try { data = JSON.parse(text); } catch { data = text; }
   }
 
   if (!res.ok) {
@@ -45,9 +39,7 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 
 export const api = {
   get: <T>(path: string) => request<T>(path, { method: "GET" }),
-  post: <T>(path: string, body: unknown) =>
-    request<T>(path, { method: "POST", body: JSON.stringify(body) }),
-  put: <T>(path: string, body: unknown) =>
-    request<T>(path, { method: "PUT", body: JSON.stringify(body) }),
+  post: <T>(path: string, body: unknown) => request<T>(path, { method: "POST", body: JSON.stringify(body) }),
+  put: <T>(path: string, body: unknown) => request<T>(path, { method: "PUT", body: JSON.stringify(body) }),
   del: <T>(path: string) => request<T>(path, { method: "DELETE" }),
 };

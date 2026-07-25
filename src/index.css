@@ -3,13 +3,8 @@
 @tailwind utilities;
 
 @layer base {
-  html {
-    -webkit-font-smoothing: antialiased;
-  }
-  body {
-    @apply bg-neutral-50 text-neutral-900;
-    line-height: 1.5;
-  }
+  html { -webkit-font-smoothing: antialiased; }
+  body { @apply bg-neutral-50 text-neutral-900; line-height: 1.5; }
 }
 
 @layer components {

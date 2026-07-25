@@ -26,18 +26,8 @@ export function App() {
 
       <nav className="mx-auto max-w-6xl px-4 pt-6">
         <div className="inline-flex rounded-lg border border-neutral-200 bg-white p-1 shadow-sm">
-          <TabButton
-            active={tab === "projects"}
-            onClick={() => setTab("projects")}
-            icon={<FolderKanban className="h-4 w-4" />}
-            label="Projects"
-          />
-          <TabButton
-            active={tab === "customers"}
-            onClick={() => setTab("customers")}
-            icon={<Users className="h-4 w-4" />}
-            label="Customers"
-          />
+          <TabButton active={tab === "projects"} onClick={() => setTab("projects")} icon={<FolderKanban className="h-4 w-4" />} label="Projects" />
+          <TabButton active={tab === "customers"} onClick={() => setTab("customers")} icon={<Users className="h-4 w-4" />} label="Customers" />
         </div>
       </nav>
 
@@ -52,17 +42,7 @@ export function App() {
   );
 }
 
-function TabButton({
-  active,
-  onClick,
-  icon,
-  label,
-}: {
-  active: boolean;
-  onClick: () => void;
-  icon: React.ReactNode;
-  label: string;
-}) {
+function TabButton({ active, onClick, icon, label }: { active: boolean; onClick: () => void; icon: React.ReactNode; label: string }) {
   return (
     <button
       onClick={onClick}
