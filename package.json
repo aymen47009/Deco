@@ -1,13 +1,14 @@
 {
   "name": "decoworkshops",
   "private": true,
-  "version": "1.0.1",
+  "version": "1.0.3",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "prebuild": "if git rev-parse --git-dir > /dev/null 2>&1; then rm -rf src && git checkout -- src/; fi",
+    "build": "npm run prebuild && tsc -b && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc -b --noEmit"
+    "typecheck": "npm run prebuild && tsc -b --noEmit"
   },
   "dependencies": {
     "lucide-react": "^0.439.0",

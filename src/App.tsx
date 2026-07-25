@@ -1,4 +1,4 @@
-// Build identifier: decoworkshops@1.0.1 — cache-busting marker for clean Vercel builds
+// Build identifier: decoworkshops@1.0.3 — cache-busting marker for clean Vercel builds
 import { useState } from "react";
 import { FolderKanban, Users } from "lucide-react";
 import { ProjectsView } from "./components/ProjectsView";
