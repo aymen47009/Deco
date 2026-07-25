@@ -1,14 +1,13 @@
 {
   "name": "decoworkshops",
   "private": true,
-  "version": "1.0.2",
+  "version": "1.0.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "prebuild": "rm -rf src/components/WorkerDashboard.tsx src/components/ui src/context src/lib",
-    "build": "npm run prebuild && tsc -b && vite build",
+    "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "typecheck": "npm run prebuild && tsc -b --noEmit"
+    "typecheck": "tsc -b --noEmit"
   },
   "dependencies": {
     "lucide-react": "^0.439.0",
