@@ -193,7 +193,7 @@ function ProjectModal({ project, customers, onClose, onSaved }: {
     try {
       const urls = await Promise.all(Array.from(files).map((f) => api.upload(f)));
       setForm((f) => ({ ...f, images: [...f.images, ...urls.map((u) => u.url)] }));
-    } catch (e) {
+    } catch {
       setErr("تعذّر رفع الصورة — تحقق من إعدادات Cloudinary");
     } finally {
       setUploading(false);
