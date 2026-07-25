@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { ArrowRight, UserPlus, Users, Trash2, DollarSign, Loader2 } from "lucide-react";
+import { ArrowRight, UserPlus, Users, Trash2, DollarSign, Loader as Loader2 } from "lucide-react";
 import { useAuth } from "../lib/auth";
 import type { User } from "../types";
 import { api } from "../lib/api";
