@@ -1,145 +1,50 @@
-export type PropertyType = "home" | "workshop" | "shop";
+export interface Customer {
+  _id: string;
+  name: string;
+  phone: string;
+  city: string;
+  notes?: string;
+  createdAt?: string;
+}
 
-export const PROPERTY_TYPE_LABELS: Record<PropertyType, string> = {
-  home: "منزل",
-  workshop: "ورشة",
-  shop: "محل",
+export type ProjectType = "decor" | "pmma" | "placo" | "other";
+export type ProjectStatus = "pending" | "in_progress" | "done" | "cancelled";
+
+export interface Project {
+  _id: string;
+  code: string;
+  title: string;
+  customerId: string;
+  customer?: Customer;
+  city: string;
+  area: number;
+  type: ProjectType;
+  status: ProjectStatus;
+  images: string[];
+  notes: string;
+  startDate?: string;
+  endDate?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export const PROJECT_TYPE_LABELS: Record<ProjectType, string> = {
+  decor: "ديكور",
+  pmma: "PMMA",
+  placo: "بلاكو بلاتر",
+  other: "أخرى",
 };
 
-export type JobStatus =
-  | "pending"
-  | "assigned"
-  | "in_progress"
-  | "inspection"
-  | "done"
-  | "cancelled";
-
-export const JOB_STATUS_LABELS: Record<JobStatus, string> = {
-  pending: "بانتظار الموافقة",
-  assigned: "تم التعيين",
+export const PROJECT_STATUS_LABELS: Record<ProjectStatus, string> = {
+  pending: "بانتظار البدء",
   in_progress: "قيد التنفيذ",
-  inspection: "الفحص",
   done: "مكتمل",
   cancelled: "ملغى",
 };
 
-export type JobComplexity = "simple" | "medium" | "complex";
-
-export const JOB_COMPLEXITY_LABELS: Record<JobComplexity, string> = {
-  simple: "بسيط",
-  medium: "متوسط",
-  complex: "معقد",
+export const STATUS_STYLES: Record<ProjectStatus, string> = {
+  pending: "bg-amber-100 text-amber-700",
+  in_progress: "bg-indigo-100 text-indigo-700",
+  done: "bg-emerald-100 text-emerald-700",
+  cancelled: "bg-rose-100 text-rose-700",
 };
-
-export type ReturnMethod = "pickup" | "delivery";
-
-export const RETURN_METHOD_LABELS: Record<ReturnMethod, string> = {
-  pickup: "استلام من الورشة",
-  delivery: "توصيل للعميل",
-};
-
-export type MaterialCategory =
-  | "paint"
-  | "wood"
-  | "metal"
-  | "tools"
-  | "fabric"
-  | "other";
-
-export const MATERIAL_CATEGORY_LABELS: Record<MaterialCategory, string> = {
-  paint: "دهانات",
-  wood: "أخشاب",
-  metal: "معادن",
-  tools: "أدوات",
-  fabric: "أقمشة",
-  other: "أخرى",
-};
-
-export interface Customer {
-  id: string;
-  name: string;
-  phone: string;
-  city: string;
-  createdAt: string;
-}
-
-export interface Worker {
-  id: string;
-  name: string;
-  phone: string;
-  city: string;
-  specialty: string;
-  rating: number;
-  jobsCompleted: number;
-  createdAt: string;
-}
-
-export interface MaterialUsage {
-  materialId: string;
-  quantity: number;
-}
-
-export interface JobBid {
-  workerId: string;
-  amount: number;
-  note?: string;
-  createdAt: string;
-}
-
-export interface InspectionData {
-  passed: boolean;
-  notes: string;
-  inspectorId: string;
-  date: string;
-}
-
-export interface ExecutionData {
-  startDate: string;
-  endDate?: string;
-  progress: number;
-}
-
-export interface Job {
-  id: string;
-  customerId: string;
-  title: string;
-  description: string;
-  propertyType: PropertyType;
-  city: string;
-  status: JobStatus;
-  complexity: JobComplexity;
-  returnMethod: ReturnMethod;
-  assignedWorkerId?: string;
-  bids: JobBid[];
-  price?: number;
-  materials: MaterialUsage[];
-  inspection?: InspectionData;
-  execution?: ExecutionData;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface Material {
-  id: string;
-  name: string;
-  category: MaterialCategory;
-  unit: string;
-  stock: number;
-  minStock: number;
-  price: number;
-  createdAt: string;
-}
-
-export interface AppData {
-  customers: Customer[];
-  workers: Worker[];
-  jobs: Job[];
-  materials: Material[];
-}
-
-export interface User {
-  id: string;
-  email: string;
-  role: "admin" | "worker" | "customer";
-  name: string;
-}
