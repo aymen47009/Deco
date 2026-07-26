@@ -100,7 +100,7 @@ export function HomePage() {
               </Link>
             </div>
             <div className="mt-10 flex flex-wrap gap-6 text-sm text-brand-100">
-              <span className="flex items-center gap-2"><Award className="h-4 w-4 text-gold-400" /> خبرة أكثر من 10 سنوات</span>
+              <span className="flex items-center gap-2"><Award className="h-4 w-4 text-gold-400" /> خبرة في المجال</span>
               <span className="flex items-center gap-2"><Clock className="h-4 w-4 text-gold-400" /> تسليم في الموعد</span>
               <span className="flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-gold-400" /> ضمان الجودة</span>
             </div>

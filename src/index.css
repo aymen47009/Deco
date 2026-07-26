@@ -20,7 +20,7 @@ body {
   .btn-outline { @apply btn border border-brand-200 bg-white text-brand-700 hover:bg-brand-50; }
   .btn-danger { @apply btn bg-rose-600 text-white hover:bg-rose-700 shadow-sm; }
   .card { @apply rounded-2xl bg-white shadow-sm ring-1 ring-brand-200/60; }
-  .input { @apply w-full rounded-xl border border-brand-200 bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200; }
+  .input { @apply w-full rounded-xl border border-brand-200 bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200; direction: rtl; unicode-bidi: plaintext; text-align: right; }
   .label { @apply mb-1.5 block text-xs font-semibold text-brand-600; }
   .chip { @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold; }
 }
