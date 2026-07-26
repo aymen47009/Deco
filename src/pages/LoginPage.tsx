@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { ShieldCheck, Loader2, Phone, Lock } from "lucide-react";
+import { ShieldCheck, Loader as Loader2, Phone, Lock } from "lucide-react";
 import { useAuth } from "../lib/auth";
 import { useToast } from "../lib/toast";
 

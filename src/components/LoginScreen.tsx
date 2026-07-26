@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Sparkles, HardHat, ShieldCheck, ArrowLeft, Lock, Mail, Loader2 } from 'lucide-react';
+import { Sparkles, HardHat, ShieldCheck, ArrowLeft, Lock, Mail, Loader as Loader2 } from 'lucide-react';
 import { useAuth } from '../lib/auth';
 import { useToast } from './ui/Toast';
 import type { RoutePath } from '../lib/router';

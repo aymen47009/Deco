@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { Project } from "../types";
 import { IMAGE_CATEGORY_LABELS } from "../types";
-import { Camera, CheckCircle2, DollarSign, User as UserIcon, MapPin, Ruler, Hash } from "lucide-react";
+import { Camera, CircleCheck as CheckCircle2, DollarSign, User as UserIcon, MapPin, Ruler, Hash } from "lucide-react";
 import { Lightbox } from "./Lightbox";
 import {
   PROJECT_TYPE_LABELS, PROJECT_STATUS_LABELS, STATUS_STYLES,

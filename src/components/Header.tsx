@@ -1,4 +1,4 @@
-import { Sparkles, LogOut, ShieldCheck, HardHat, Loader2 } from 'lucide-react';
+import { Sparkles, LogOut, ShieldCheck, HardHat, Loader as Loader2 } from 'lucide-react';
 import { useAuth } from '../lib/auth';
 import { navigate } from '../lib/router';
 
