@@ -21,11 +21,8 @@ router.get('/:id', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-  try {
-    const project = new Project(req.body);
-    await project.save();
-    res.status(201).json(project);
-  } catch (err) { res.status(400).json({ error: err.message }); }
+  try { res.status(201).json(await new Project(req.body).save()); }
+  catch (err) { res.status(400).json({ error: err.message }); }
 });
 
 router.put('/:id', async (req, res) => {

@@ -6,7 +6,7 @@ import { GalleryManager } from './GalleryManager';
 import { SiteSettings } from './SiteSettings';
 import { ToastContainer } from './ui';
 
-type Tab = 'projects' | 'workers' | 'materials' | 'gallery' | 'site';
+type Tab = 'projects' | 'gallery' | 'workers' | 'materials' | 'site';
 
 const TABS: { key: Tab; label: string; icon: string }[] = [
   { key: 'projects', label: 'المشاريع', icon: '📋' },

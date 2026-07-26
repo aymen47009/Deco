@@ -45,7 +45,6 @@ export function GalleryManager() {
 
   return (
     <div className="gallery-mgr">
-      {/* Upload Card */}
       <div className="upload-card">
         <h3 className="upload-title">رفع صورة جديدة</h3>
         <div className="upload-form">
@@ -68,7 +67,6 @@ export function GalleryManager() {
         </div>
       </div>
 
-      {/* Filter */}
       <div className="filter-bar">
         <select value={filterCat} onChange={(e) => setFilterCat(e.target.value)}>
           <option value="">كل التصنيفات</option>
@@ -77,7 +75,6 @@ export function GalleryManager() {
         <span className="filter-count">{images.length} صورة</span>
       </div>
 
-      {/* Grid */}
       {loading ? <Spinner label="جاري التحميل..." /> : images.length === 0 ? (
         <EmptyState title="لا توجد صور" message="ارفع أول صورة باستخدام النموذج أعلاه" />
       ) : (

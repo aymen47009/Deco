@@ -41,7 +41,7 @@ router.delete('/:id', async (req, res) => {
     const image = await GalleryImage.findById(req.params.id);
     if (!image) return res.status(404).json({ error: 'Image not found' });
     if (image.publicId) {
-      try { await cloudinary.uploader.destroy(image.publicId); } catch { /* ignore cloudinary errors */ }
+      try { await cloudinary.uploader.destroy(image.publicId); } catch { /* ignore */ }
     }
     await GalleryImage.findByIdAndDelete(req.params.id);
     res.json({ message: 'Image deleted' });
@@ -51,9 +51,7 @@ router.delete('/:id', async (req, res) => {
 router.patch('/:id/order', async (req, res) => {
   try {
     const image = await GalleryImage.findByIdAndUpdate(
-      req.params.id,
-      { order: req.body.order },
-      { new: true }
+      req.params.id, { order: req.body.order }, { new: true }
     );
     if (!image) return res.status(404).json({ error: 'Image not found' });
     res.json(image);
