@@ -1,18 +1,34 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js'
 
-const url = import.meta.env.VITE_SUPABASE_URL ?? '';
-const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY ?? '';
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string
 
-if (!url || !anonKey) {
-  console.warn('[supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — running in offline mode');
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: { persistSession: false },
+})
+
+export type Project = {
+  id: string
+  code: string
+  name: string
+  phone: string
+  email: string | null
+  workshop_type: string
+  space_size: string | null
+  budget: number | null
+  description: string
+  status: string
+  preferred_date: string | null
+  created_at: string
 }
 
-export const supabase = createClient(url || 'https://placeholder.supabase.co', anonKey || 'placeholder-anon-key', {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-    detectSessionInUrl: true,
-  },
-});
-
-export const JOB_PHOTOS_BUCKET = 'job-photos';
+export type ProjectInsert = {
+  name: string
+  phone: string
+  email?: string
+  workshop_type: string
+  space_size?: string
+  budget?: number
+  description: string
+  preferred_date?: string
+}
