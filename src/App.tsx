@@ -9,9 +9,7 @@ export default function App() {
 
   useEffect(() => {
     function checkHash() {
-      if (window.location.hash === '#admin') {
-        setView('admin');
-      }
+      if (window.location.hash === '#admin') setView('admin');
     }
     checkHash();
     window.addEventListener('hashchange', checkHash);
@@ -19,6 +17,5 @@ export default function App() {
   }, []);
 
   if (view === 'admin') return <AdminDashboard onExit={() => { window.location.hash = ''; setView('customer'); }} />;
-
   return <CustomerPortal />;
 }

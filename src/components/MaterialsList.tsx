@@ -14,9 +14,8 @@ export function MaterialsList() {
 
   async function load() {
     setLoading(true);
-    try {
-      setMaterials(await api.getMaterials({ category: filterCategory || undefined, lowStock: showLowStock || undefined }));
-    } catch (e) { console.error(e); }
+    try { setMaterials(await api.getMaterials({ category: filterCategory || undefined, lowStock: showLowStock || undefined })); }
+    catch (e) { console.error(e); }
     finally { setLoading(false); }
   }
 
@@ -38,19 +37,14 @@ export function MaterialsList() {
           <option value="">كل التصنيفات</option>
           {MATERIAL_CATEGORIES.map((c) => <option key={c} value={c}>{MATERIAL_CATEGORY_LABELS[c]}</option>)}
         </select>
-        <label className="checkbox-label">
-          <input type="checkbox" checked={showLowStock} onChange={(e) => setShowLowStock(e.target.checked)} />
-          مخزون منخفض فقط
-        </label>
+        <label className="checkbox-label"><input type="checkbox" checked={showLowStock} onChange={(e) => setShowLowStock(e.target.checked)} /> مخزون منخفض فقط</label>
       </div>
       {materials.length === 0 ? (
         <EmptyState title="لا توجد مواد" message="أضف مادة جديدة" />
       ) : (
         <div className="table-wrap">
           <table className="data-table">
-            <thead>
-              <tr><th>الاسم</th><th>التصنيف</th><th>المخزون</th><th>الوحدة</th><th>السعر</th><th>المورد</th><th>إجراءات</th></tr>
-            </thead>
+            <thead><tr><th>الاسم</th><th>التصنيف</th><th>المخزون</th><th>الوحدة</th><th>السعر</th><th>المورد</th><th>إجراءات</th></tr></thead>
             <tbody>
               {materials.map((m) => {
                 const lowStock = m.stock <= m.lowStockThreshold;
@@ -83,12 +77,9 @@ export function MaterialsList() {
 
 function MaterialForm({ material, onDone }: { material: Material | null; onDone: () => void }) {
   const [form, setForm] = useState<MaterialInput>({
-    name: material?.name ?? '',
-    category: material?.category ?? 'other',
-    unit: material?.unit ?? 'piece',
-    stock: material?.stock ?? 0,
-    lowStockThreshold: material?.lowStockThreshold ?? 10,
-    pricePerUnit: material?.pricePerUnit ?? 0,
+    name: material?.name ?? '', category: material?.category ?? 'other',
+    unit: material?.unit ?? 'piece', stock: material?.stock ?? 0,
+    lowStockThreshold: material?.lowStockThreshold ?? 10, pricePerUnit: material?.pricePerUnit ?? 0,
     supplier: material?.supplier ?? '',
   });
   const [saving, setSaving] = useState(false);

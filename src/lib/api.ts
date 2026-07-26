@@ -1,7 +1,6 @@
 import type {
   Project, ProjectInput, ProjectStatus,
   Worker, WorkerInput, WorkerStatus,
-  Customer, CustomerInput,
   Material, MaterialInput,
   SiteConfig, SiteConfigInput,
 } from '../types';
@@ -15,26 +14,17 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
   });
   if (!res.ok) {
     let message = `Request failed: ${res.status}`;
-    try {
-      const data = await res.json();
-      message = data.error || message;
-    } catch {
-      // ignore parse error
-    }
+    try { const data = await res.json(); message = data.error || message; } catch { /* ignore */ }
     throw new Error(message);
   }
   return res.json() as Promise<T>;
 }
 
 export const api = {
-  // Projects
   getProjects: (status?: string) =>
     request<Project[]>(`/projects${status ? `?status=${status}` : ''}`),
-  getProject: (id: string) => request<Project>(`/projects/${id}`),
   createProject: (data: ProjectInput) =>
     request<Project>('/projects', { method: 'POST', body: JSON.stringify(data) }),
-  updateProject: (id: string, data: Partial<ProjectInput>) =>
-    request<Project>(`/projects/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   updateProjectStatus: (id: string, status: ProjectStatus) =>
     request<Project>(`/projects/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
   updateProjectProgress: (id: string, progress: number) =>
@@ -42,7 +32,6 @@ export const api = {
   deleteProject: (id: string) =>
     request<{ message: string }>(`/projects/${id}`, { method: 'DELETE' }),
 
-  // Workers
   getWorkers: (filters?: { status?: WorkerStatus; role?: string }) => {
     const params = new URLSearchParams();
     if (filters?.status) params.set('status', filters.status);
@@ -50,7 +39,6 @@ export const api = {
     const qs = params.toString();
     return request<Worker[]>(`/workers${qs ? `?${qs}` : ''}`);
   },
-  getWorker: (id: string) => request<Worker>(`/workers/${id}`),
   createWorker: (data: WorkerInput) =>
     request<Worker>('/workers', { method: 'POST', body: JSON.stringify(data) }),
   updateWorker: (id: string, data: Partial<WorkerInput>) =>
@@ -60,14 +48,6 @@ export const api = {
   deleteWorker: (id: string) =>
     request<{ message: string }>(`/workers/${id}`, { method: 'DELETE' }),
 
-  // Customers
-  getCustomers: () => request<Customer[]>('/customers'),
-  createCustomer: (data: CustomerInput) =>
-    request<Customer>('/customers', { method: 'POST', body: JSON.stringify(data) }),
-  deleteCustomer: (id: string) =>
-    request<{ message: string }>(`/customers/${id}`, { method: 'DELETE' }),
-
-  // Materials
   getMaterials: (filters?: { category?: string; lowStock?: boolean }) => {
     const params = new URLSearchParams();
     if (filters?.category) params.set('category', filters.category);
@@ -82,7 +62,6 @@ export const api = {
   deleteMaterial: (id: string) =>
     request<{ message: string }>(`/materials/${id}`, { method: 'DELETE' }),
 
-  // Site Config
   getSiteConfig: () => request<SiteConfig>('/siteconfig'),
   updateSiteConfig: (data: SiteConfigInput) =>
     request<SiteConfig>('/siteconfig', { method: 'PUT', body: JSON.stringify(data) }),

@@ -5,10 +5,8 @@ const projectSchema = new mongoose.Schema(
     title: { type: String, required: true, trim: true },
     customer: { type: String, required: true, trim: true },
     phone: { type: String, required: true, trim: true },
-    workshopType: { type: String, required: true, trim: true },
-    spaceSize: { type: String, trim: true, default: '' },
-    budget: { type: Number, default: null },
-    description: { type: String, trim: true, default: '' },
+    workshopTypes: [{ type: String, default: [] }],
+    spaceSize: { type: String, required: true, trim: true },
     status: {
       type: String,
       enum: ['new', 'in_review', 'approved', 'in_progress', 'review', 'completed', 'cancelled'],

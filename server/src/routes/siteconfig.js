@@ -8,19 +8,13 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 async function getConfig() {
   let config = await SiteConfig.findOne();
-  if (!config) {
-    config = await SiteConfig.create({});
-  }
+  if (!config) config = await SiteConfig.create({});
   return config;
 }
 
 router.get('/', async (req, res) => {
-  try {
-    const config = await getConfig();
-    res.json(config);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  try { res.json(await getConfig()); }
+  catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 router.put('/', async (req, res) => {
@@ -29,9 +23,7 @@ router.put('/', async (req, res) => {
     Object.assign(config, req.body);
     await config.save();
     res.json(config);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
+  } catch (err) { res.status(400).json({ error: err.message }); }
 });
 
 router.post('/upload', upload.single('image'), async (req, res) => {
@@ -40,17 +32,12 @@ router.post('/upload', upload.single('image'), async (req, res) => {
     const result = await new Promise((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
         { folder: 'deco-workshops/site' },
-        (error, result) => {
-          if (error) reject(error);
-          else resolve(result);
-        }
+        (error, result) => { if (error) reject(error); else resolve(result); }
       );
       stream.end(req.file.buffer);
     });
     res.json({ url: result.secure_url });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 router.post('/gallery/add', upload.single('image'), async (req, res) => {
@@ -59,10 +46,7 @@ router.post('/gallery/add', upload.single('image'), async (req, res) => {
     const result = await new Promise((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
         { folder: 'deco-workshops/gallery' },
-        (error, result) => {
-          if (error) reject(error);
-          else resolve(result);
-        }
+        (error, result) => { if (error) reject(error); else resolve(result); }
       );
       stream.end(req.file.buffer);
     });
@@ -70,9 +54,7 @@ router.post('/gallery/add', upload.single('image'), async (req, res) => {
     config.galleryImages.push(result.secure_url);
     await config.save();
     res.json(config);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 router.delete('/gallery/:index', async (req, res) => {
@@ -84,9 +66,7 @@ router.delete('/gallery/:index', async (req, res) => {
       await config.save();
     }
     res.json(config);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 export default router;

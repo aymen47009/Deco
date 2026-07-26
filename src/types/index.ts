@@ -7,25 +7,9 @@ export type ProjectStatus =
   | 'completed'
   | 'cancelled';
 
-export type WorkerRole =
-  | 'placo'
-  | 'wood'
-  | 'marble'
-  | 'pvc'
-  | 'demontable'
-  | 'designer'
-  | 'manager';
-
+export type WorkerRole = 'placo' | 'wood' | 'marble' | 'pvc' | 'demontable' | 'designer' | 'manager';
 export type WorkerStatus = 'available' | 'busy' | 'on_leave' | 'inactive';
-
-export type MaterialCategory =
-  | 'placo'
-  | 'wood'
-  | 'marble'
-  | 'pvc'
-  | 'demontable'
-  | 'tools'
-  | 'other';
+export type MaterialCategory = 'placo' | 'wood' | 'marble' | 'pvc' | 'demontable' | 'tools' | 'other';
 
 export interface SiteConfig {
   _id: string;
@@ -36,8 +20,12 @@ export interface SiteConfig {
   heroTagline: string;
   heroBadge: string;
   heroImage: string;
-  sectionTitle: string;
-  sectionSubtitle: string;
+  servicesTitle: string;
+  servicesSubtitle: string;
+  galleryTitle: string;
+  gallerySubtitle: string;
+  orderTitle: string;
+  orderSubtitle: string;
   ctaText: string;
   ctaPulse: boolean;
   footerText: string;
@@ -58,8 +46,12 @@ export interface SiteConfigInput {
   heroTagline?: string;
   heroBadge?: string;
   heroImage?: string;
-  sectionTitle?: string;
-  sectionSubtitle?: string;
+  servicesTitle?: string;
+  servicesSubtitle?: string;
+  galleryTitle?: string;
+  gallerySubtitle?: string;
+  orderTitle?: string;
+  orderSubtitle?: string;
   ctaText?: string;
   ctaPulse?: boolean;
   footerText?: string;
@@ -87,25 +79,6 @@ export interface WorkerInput {
   role: WorkerRole;
   status?: WorkerStatus;
   avatar?: string;
-}
-
-export interface Customer {
-  _id: string;
-  name: string;
-  phone: string;
-  email: string;
-  address: string;
-  notes: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface CustomerInput {
-  name: string;
-  phone: string;
-  email?: string;
-  address?: string;
-  notes?: string;
 }
 
 export interface Material {
@@ -136,10 +109,8 @@ export interface Project {
   title: string;
   customer: string;
   phone: string;
-  workshopType: string;
+  workshopTypes: string[];
   spaceSize: string;
-  budget: number | null;
-  description: string;
   status: ProjectStatus;
   progress: number;
   images: string[];
@@ -154,11 +125,8 @@ export interface ProjectInput {
   title: string;
   customer: string;
   phone: string;
-  workshopType: string;
-  spaceSize?: string;
-  budget?: number;
-  description?: string;
-  preferredDate?: string;
+  workshopTypes: string[];
+  spaceSize: string;
 }
 
 export const PROJECT_STATUS_LABELS: Record<ProjectStatus, string> = {
@@ -212,8 +180,15 @@ export const WORKSHOP_TYPES = [
   'بديل الرخام',
   'ألواح PVC',
   'ديمونطابل',
-  'أخرى',
 ];
+
+export const WORKSHOP_TYPE_ICONS: Record<string, string> = {
+  'بلاكو بلاتر': '🧱',
+  'بديل الخشب': '🪵',
+  'بديل الرخام': '⚪',
+  'ألواح PVC': '📋',
+  'ديمونطابل': '🔧',
+};
 
 export const SPACE_SIZES = [
   '10 م² - 30 م²',
@@ -225,13 +200,17 @@ export const SPACE_SIZES = [
 export const DEFAULT_SITE_CONFIG: SiteConfigInput = {
   logo: '',
   brandName: 'ديكو ورشات',
-  heroTitle: 'ألواح جدارية احترافية',
+  heroTitle: 'إعادة التلبيس الداخلي للمنازل',
   heroSubtitle: 'بلاكو بلاتر، بديل الخشب، بديل الرخام، PVC، ديمونطابل',
   heroTagline: 'عمل احترافي — تسليم في الوقت — أسعار مناسبة',
   heroBadge: 'ديكو ورشات',
   heroImage: '',
-  sectionTitle: 'نموذج طلب',
-  sectionSubtitle: 'املأ النموذج وسنتواصل معك في أقرب وقت',
+  servicesTitle: 'أنواع العمل التي نقدمها',
+  servicesSubtitle: 'نوفر مجموعة متكاملة من خدمات إعادة التلبيس',
+  galleryTitle: 'معرض أعمالنا',
+  gallerySubtitle: 'نماذج من إنجازاتنا السابقة',
+  orderTitle: 'نموذج الطلب',
+  orderSubtitle: 'املأ النموذج وسنتواصل معك في أقرب وقت',
   ctaText: 'اطلب الآن',
   ctaPulse: true,
   footerText: '© ديكو ورشات — جميع الحقوق محفوظة',

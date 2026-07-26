@@ -8,7 +8,6 @@ import { fileURLToPath } from 'url';
 
 import projectRoutes from './src/routes/projects.js';
 import workerRoutes from './src/routes/workers.js';
-import customerRoutes from './src/routes/customers.js';
 import materialRoutes from './src/routes/materials.js';
 import siteConfigRoutes from './src/routes/siteconfig.js';
 
@@ -32,30 +31,16 @@ cloudinary.config({
 
 app.use('/api/projects', projectRoutes);
 app.use('/api/workers', workerRoutes);
-app.use('/api/customers', customerRoutes);
 app.use('/api/materials', materialRoutes);
 app.use('/api/siteconfig', siteConfigRoutes);
 
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
+app.get('/api/health', (req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
 
 const distPath = path.join(__dirname, '../dist');
 app.use(express.static(distPath));
-
-app.get('*', (req, res) => {
-  res.sendFile(path.join(distPath, 'index.html'));
-});
+app.get('*', (req, res) => res.sendFile(path.join(distPath, 'index.html')));
 
 mongoose
   .connect(process.env.MONGODB_URI)
-  .then(() => {
-    console.log('Connected to MongoDB Atlas');
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-    });
-  })
-  .catch((err) => {
-    console.error('MongoDB connection error:', err.message);
-    process.exit(1);
-  });
+  .then(() => { console.log('Connected to MongoDB'); app.listen(PORT, () => console.log(`Server running on port ${PORT}`)); })
+  .catch((err) => { console.error('MongoDB error:', err.message); process.exit(1); });

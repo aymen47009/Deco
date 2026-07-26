@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npm install && tsc -b && vite build && cd server && npm install",
+    "clean": "bash cleanup-old-files.sh",
+    "build": "npm run clean && npm install && tsc -b && vite build && cd server && npm install",
     "start": "cd server && npm start",
     "preview": "vite preview"
   },

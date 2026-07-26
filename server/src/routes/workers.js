@@ -9,13 +9,9 @@ router.get('/', async (req, res) => {
     const filter = {};
     if (status) filter.status = status;
     if (role) filter.role = role;
-    const workers = await Worker.find(filter)
-      .populate('assignedProjects', 'title status')
-      .sort({ createdAt: -1 });
+    const workers = await Worker.find(filter).populate('assignedProjects', 'title status').sort({ createdAt: -1 });
     res.json(workers);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 router.get('/:id', async (req, res) => {
@@ -23,47 +19,28 @@ router.get('/:id', async (req, res) => {
     const worker = await Worker.findById(req.params.id).populate('assignedProjects', 'title status');
     if (!worker) return res.status(404).json({ error: 'Worker not found' });
     res.json(worker);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 router.post('/', async (req, res) => {
-  try {
-    const worker = new Worker(req.body);
-    await worker.save();
-    res.status(201).json(worker);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
+  try { res.status(201).json(await new Worker(req.body).save()); }
+  catch (err) { res.status(400).json({ error: err.message }); }
 });
 
 router.put('/:id', async (req, res) => {
   try {
-    const worker = await Worker.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    }).populate('assignedProjects', 'title status');
+    const worker = await Worker.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true }).populate('assignedProjects', 'title status');
     if (!worker) return res.status(404).json({ error: 'Worker not found' });
     res.json(worker);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
+  } catch (err) { res.status(400).json({ error: err.message }); }
 });
 
 router.patch('/:id/status', async (req, res) => {
   try {
-    const { status } = req.body;
-    const worker = await Worker.findByIdAndUpdate(
-      req.params.id,
-      { status },
-      { new: true, runValidators: true }
-    );
+    const worker = await Worker.findByIdAndUpdate(req.params.id, { status: req.body.status }, { new: true, runValidators: true });
     if (!worker) return res.status(404).json({ error: 'Worker not found' });
     res.json(worker);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
+  } catch (err) { res.status(400).json({ error: err.message }); }
 });
 
 router.delete('/:id', async (req, res) => {
@@ -71,9 +48,7 @@ router.delete('/:id', async (req, res) => {
     const worker = await Worker.findByIdAndDelete(req.params.id);
     if (!worker) return res.status(404).json({ error: 'Worker not found' });
     res.json({ message: 'Worker deleted' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 export default router;

@@ -1,7 +1,10 @@
 import { useEffect, useState, useRef } from 'react';
 import { api } from '../lib/api';
 import { Spinner, showToast } from './ui';
-import { WORKSHOP_TYPES, SPACE_SIZES, DEFAULT_SITE_CONFIG, type Project, type ProjectInput, type SiteConfig, type SiteConfigInput } from '../types';
+import {
+  WORKSHOP_TYPES, WORKSHOP_TYPE_ICONS, SPACE_SIZES, DEFAULT_SITE_CONFIG,
+  type Project, type ProjectInput, type SiteConfig, type SiteConfigInput,
+} from '../types';
 
 export function CustomerPortal() {
   const [config, setConfig] = useState<SiteConfig | null>(null);
@@ -9,26 +12,31 @@ export function CustomerPortal() {
     title: '',
     customer: '',
     phone: '',
-    workshopType: '',
+    workshopTypes: [],
     spaceSize: '',
   });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState<Project | null>(null);
   const orderRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     (async () => {
-      try {
-        const c = await api.getSiteConfig();
-        setConfig(c);
-      } catch {
-        setConfig(null);
-      } finally {
-        setLoading(false);
-      }
+      try { setConfig(await api.getSiteConfig()); }
+      catch { setConfig(null); }
+      finally { setLoading(false); }
     })();
   }, []);
+
+  function toggleWorkshopType(type: string) {
+    setForm((prev) => {
+      const has = prev.workshopTypes.includes(type);
+      return {
+        ...prev,
+        workshopTypes: has ? prev.workshopTypes.filter((t) => t !== type) : [...prev.workshopTypes, type],
+      };
+    });
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -59,13 +67,16 @@ export function CustomerPortal() {
           <div className="order-success-card">
             <div className="order-success-icon">✓</div>
             <h2>تم استلام طلبك بنجاح!</h2>
-            <p>عنوان المشروع: {submitted.title}</p>
-            <p>الزبون: {submitted.customer}</p>
-            <p>النوع: {submitted.workshopType}</p>
+            <p>الاسم: {submitted.customer}</p>
+            <p>الهاتف: {submitted.phone}</p>
+            <p>المساحة: {submitted.spaceSize}</p>
+            {submitted.workshopTypes.length > 0 && (
+              <p>أنواع العمل: {submitted.workshopTypes.join('، ')}</p>
+            )}
             <p className="order-success-note">سنتواصل معك قريباً على الرقم: {submitted.phone}</p>
             <button className="btn btn-primary btn-lg" onClick={() => {
               setSubmitted(null);
-              setForm({ title: '', customer: '', phone: '', workshopType: '', spaceSize: '' });
+              setForm({ title: '', customer: '', phone: '', workshopTypes: [], spaceSize: '' });
             }}>طلب جديد</button>
           </div>
         </div>
@@ -75,7 +86,7 @@ export function CustomerPortal() {
 
   return (
     <div className="customer-portal">
-      {/* Hero Section */}
+      {/* Hero */}
       <section className="hero">
         <div className="hero-bg" style={cfg.heroImage ? { backgroundImage: `url(${cfg.heroImage})` } : undefined} />
         <div className="hero-overlay" />
@@ -91,13 +102,33 @@ export function CustomerPortal() {
         </div>
       </section>
 
-      {/* Gallery Section */}
+      {/* Services / Workshop Types */}
+      <section className="services-section">
+        <div className="container">
+          <div className="section-header">
+            <span className="section-tag">خدماتنا</span>
+            <h2>{cfg.servicesTitle}</h2>
+            <p>{cfg.servicesSubtitle}</p>
+          </div>
+          <div className="services-grid">
+            {WORKSHOP_TYPES.map((type) => (
+              <div key={type} className="service-card">
+                <div className="service-icon">{WORKSHOP_TYPE_ICONS[type] ?? '✨'}</div>
+                <h3>{type}</h3>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Gallery */}
       {config && config.galleryImages.length > 0 && (
         <section className="gallery-section">
           <div className="container">
             <div className="section-header">
               <span className="section-tag">أعمالنا</span>
-              <h2>معرض الصور</h2>
+              <h2>{cfg.galleryTitle}</h2>
+              <p>{cfg.gallerySubtitle}</p>
             </div>
             <div className="gallery-grid">
               {config.galleryImages.map((img, i) => (
@@ -110,20 +141,16 @@ export function CustomerPortal() {
         </section>
       )}
 
-      {/* Order Form Section */}
+      {/* Order Form */}
       <section className="order-section" ref={orderRef} id="order">
         <div className="container">
           <div className="order-card">
             <div className="section-header">
               <span className="section-tag">{cfg.ctaText}</span>
-              <h2>{cfg.sectionTitle}</h2>
-              <p>{cfg.sectionSubtitle}</p>
+              <h2>{cfg.orderTitle}</h2>
+              <p>{cfg.orderSubtitle}</p>
             </div>
             <form onSubmit={handleSubmit} className="order-form">
-              <div className="order-form-field">
-                <label>عنوان المشروع *</label>
-                <input required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="مثال: تركيب بلاكو للصالة" />
-              </div>
               <div className="order-form-field">
                 <label>الاسم *</label>
                 <input required value={form.customer} onChange={(e) => setForm({ ...form, customer: e.target.value })} placeholder="الاسم الكامل" />
@@ -132,29 +159,46 @@ export function CustomerPortal() {
                 <label>رقم الهاتف *</label>
                 <input required type="tel" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="07XXXXXXXX" />
               </div>
-              <div className="order-form-field">
-                <label>نوع العمل *</label>
-                <select required value={form.workshopType} onChange={(e) => setForm({ ...form, workshopType: e.target.value })}>
-                  <option value="" disabled>اختر نوع العمل</option>
-                  {WORKSHOP_TYPES.map((w) => <option key={w} value={w}>{w}</option>)}
-                </select>
-              </div>
-              <div className="order-form-field">
-                <label>مساحة العمل</label>
-                <select value={form.spaceSize} onChange={(e) => setForm({ ...form, spaceSize: e.target.value })}>
-                  <option value="">اختر المساحة</option>
-                  {SPACE_SIZES.map((s) => <option key={s} value={s}>{s}</option>)}
-                </select>
-              </div>
-              <div className="order-form-field">
-                <label>الميزانية (اختياري)</label>
-                <input type="number" value={form.budget ?? ''} onChange={(e) => setForm({ ...form, budget: e.target.value ? Number(e.target.value) : undefined })} />
+              <div className="order-form-field form-field-full">
+                <label>نوع العمل * <span className="field-hint">(يمكنك اختيار عدة أنواع)</span></label>
+                <div className="multi-select-grid">
+                  {WORKSHOP_TYPES.map((type) => {
+                    const selected = form.workshopTypes.includes(type);
+                    return (
+                      <button
+                        key={type}
+                        type="button"
+                        className={`multi-select-chip ${selected ? 'selected' : ''}`}
+                        onClick={() => toggleWorkshopType(type)}
+                      >
+                        <span className="chip-icon">{WORKSHOP_TYPE_ICONS[type] ?? '✨'}</span>
+                        <span>{type}</span>
+                        {selected && <span className="chip-check">✓</span>}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
               <div className="order-form-field form-field-full">
-                <label>الوصف</label>
-                <textarea rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="تفاصيل إضافية عن المشروع" />
+                <label>المساحة *</label>
+                <div className="radio-grid">
+                  {SPACE_SIZES.map((size) => (
+                    <button
+                      key={size}
+                      type="button"
+                      className={`radio-chip ${form.spaceSize === size ? 'selected' : ''}`}
+                      onClick={() => setForm({ ...form, spaceSize: size })}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <button type="submit" className="btn btn-primary btn-lg order-submit-btn" disabled={submitting}>
+              <button
+                type="submit"
+                className="btn btn-primary btn-lg order-submit-btn"
+                disabled={submitting || form.workshopTypes.length === 0 || !form.spaceSize}
+              >
                 {submitting ? <Spinner /> : 'إرسال الطلب'}
               </button>
             </form>
@@ -173,12 +217,12 @@ export function CustomerPortal() {
         </div>
       </footer>
 
-      {/* Pulsing CTA Button - fixed at bottom, spans full width */}
+      {/* Pulsing CTA */}
       <button
         className={`cta-bar ${cfg.ctaPulse ? 'cta-pulse' : ''}`}
         onClick={scrollToOrder}
       >
-        <span className="cta-bar-icon">←</span>
+        <span className="cta-bar-icon">↑</span>
         <span className="cta-bar-text">{cfg.ctaText}</span>
       </button>
     </div>

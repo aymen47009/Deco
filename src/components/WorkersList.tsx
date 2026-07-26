@@ -73,11 +73,8 @@ export function WorkersList() {
 
 function WorkerForm({ worker, onDone }: { worker: Worker | null; onDone: () => void }) {
   const [form, setForm] = useState<WorkerInput>({
-    name: worker?.name ?? '',
-    phone: worker?.phone ?? '',
-    role: worker?.role ?? 'placo',
-    status: worker?.status ?? 'available',
-    avatar: worker?.avatar ?? '',
+    name: worker?.name ?? '', phone: worker?.phone ?? '',
+    role: worker?.role ?? 'placo', status: worker?.status ?? 'available', avatar: worker?.avatar ?? '',
   });
   const [saving, setSaving] = useState(false);
 

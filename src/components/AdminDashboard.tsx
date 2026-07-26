@@ -14,13 +14,10 @@ const TABS: { key: AdminTab; label: string }[] = [
   { key: 'site', label: 'مظهر الموقع' },
 ];
 
-interface Props {
-  onExit: () => void;
-}
+interface Props { onExit: () => void; }
 
 export function AdminDashboard({ onExit }: Props) {
   const [tab, setTab] = useState<AdminTab>('projects');
-
   return (
     <div className="admin-layout">
       <aside className="admin-sidebar">
