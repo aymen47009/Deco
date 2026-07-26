@@ -56,13 +56,7 @@ projectSchema.pre('validate', async function preValidate(next) {
 
 projectSchema.methods.recalculateProgress = function recalculateProgress() {
   const statusMap = {
-    new: 0,
-    in_review: 10,
-    approved: 20,
-    in_progress: 50,
-    review: 85,
-    completed: 100,
-    cancelled: 0,
+    new: 0, in_review: 10, approved: 20, in_progress: 50, review: 85, completed: 100, cancelled: 0,
   };
   this.progress = statusMap[this.status] ?? 0;
   return this.progress;

@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { Hero } from './components/Hero';
-import { OrderForm } from './components/OrderForm';
+import { CustomerPage } from './components/CustomerPage';
 import { ProjectsList } from './components/ProjectsList';
 import { WorkersList } from './components/WorkersList';
 import { MaterialsList } from './components/MaterialsList';
@@ -8,76 +7,79 @@ import { CustomerPortal } from './components/CustomerPortal';
 import { AdminDashboard } from './components/AdminDashboard';
 import { WorkerDashboard } from './components/WorkerDashboard';
 import { ToastContainer } from './components/ui';
+import { siteConfig } from './config/site';
 
-type View = 'home' | 'order' | 'projects' | 'workers' | 'materials' | 'track' | 'admin' | 'worker';
+type Role = 'customer' | 'admin' | 'worker';
+type AdminView = 'dashboard' | 'projects' | 'workers' | 'materials' | 'track';
 
 export default function App() {
-  const [view, setView] = useState<View>('home');
-  const [lastCode, setLastCode] = useState<string | null>(null);
+  const [role, setRole] = useState<Role>('customer');
+  const [adminView, setAdminView] = useState<AdminView>('dashboard');
 
-  function handleOrderDone() {
-    setView('projects');
+  if (role === 'customer') {
+    return (
+      <>
+        <RoleSwitcher role={role} setRole={setRole} />
+        <CustomerPage />
+        <ToastContainer />
+      </>
+    );
   }
 
-  function handleOrderSubmit() {
-    setLastCode('DW-' + String(Math.floor(Math.random() * 9000) + 1000));
-  }
-
-  const navItems: { key: View; label: string }[] = [
-    { key: 'home', label: 'الرئيسية' },
-    { key: 'order', label: 'طلب تصميم' },
+  const adminNavItems: { key: AdminView; label: string }[] = [
+    { key: 'dashboard', label: 'لوحة التحكم' },
     { key: 'projects', label: 'المشاريع' },
     { key: 'workers', label: 'العمال' },
     { key: 'materials', label: 'المخزون' },
     { key: 'track', label: 'تتبع مشروع' },
-    { key: 'admin', label: 'لوحة الإدارة' },
-    { key: 'worker', label: 'لوحة العامل' },
   ];
 
   return (
-    <div className="app">
-      <header className="site-header">
-        <div className="container header-inner">
-          <button className="brand" onClick={() => setView('home')}>
-            <span className="brand-mark">DW</span>
-            <span className="brand-name">ديكو وركشوبس</span>
-          </button>
-          <nav className="nav">
-            {navItems.map((item) => (
-              <button
-                key={item.key}
-                className={view === item.key ? 'active' : ''}
-                onClick={() => setView(item.key)}
-              >
-                {item.label}
-              </button>
-            ))}
-          </nav>
+    <div className="admin-layout">
+      <aside className="admin-sidebar">
+        <div className="sidebar-brand">
+          <span className="sidebar-logo">{siteConfig.brand.logo}</span>
+          <span className="sidebar-name">{siteConfig.brand.name}</span>
         </div>
-      </header>
-
-      <main className="container main">
-        {view === 'home' && (
-          <Hero onOrder={() => setView('order')} lastCode={lastCode} />
-        )}
-        {view === 'order' && (
-          <OrderForm onDone={handleOrderDone} />
-        )}
-        {view === 'projects' && <ProjectsList />}
-        {view === 'workers' && <WorkersList />}
-        {view === 'materials' && <MaterialsList />}
-        {view === 'track' && <CustomerPortal />}
-        {view === 'admin' && <AdminDashboard onNavigate={(v) => setView(v as View)} />}
-        {view === 'worker' && <WorkerDashboard />}
+        <nav className="sidebar-nav">
+          {adminNavItems.map((item) => (
+            <button
+              key={item.key}
+              className={adminView === item.key ? 'active' : ''}
+              onClick={() => setAdminView(item.key)}
+            >
+              {item.label}
+            </button>
+          ))}
+        </nav>
+        <div className="sidebar-footer">
+          <button className="sidebar-role-btn" onClick={() => setRole('customer')}>واجهة الزبون</button>
+        </div>
+      </aside>
+      <main className="admin-main">
+        <header className="admin-header">
+          <h1>{adminNavItems.find((n) => n.key === adminView)?.label}</h1>
+          <RoleSwitcher role={role} setRole={setRole} />
+        </header>
+        <div className="admin-content">
+          {adminView === 'dashboard' && <AdminDashboard />}
+          {adminView === 'projects' && <ProjectsList />}
+          {adminView === 'workers' && <WorkersList />}
+          {adminView === 'materials' && <MaterialsList />}
+          {adminView === 'track' && <CustomerPortal />}
+        </div>
       </main>
-
-      <footer className="site-footer">
-        <div className="container">
-          <p>© {new Date().getFullYear()} ديكو وركشوبس — جميع الحقوق محفوظة</p>
-        </div>
-      </footer>
-
       <ToastContainer />
+    </div>
+  );
+}
+
+function RoleSwitcher({ role, setRole }: { role: Role; setRole: (r: Role) => void }) {
+  return (
+    <div className="role-switcher">
+      <button className={role === 'customer' ? 'active' : ''} onClick={() => setRole('customer')}>الزبون</button>
+      <button className={role === 'admin' ? 'active' : ''} onClick={() => setRole('admin')}>الإدارة</button>
+      <button className={role === 'worker' ? 'active' : ''} onClick={() => setRole('worker')}>العامل</button>
     </div>
   );
 }

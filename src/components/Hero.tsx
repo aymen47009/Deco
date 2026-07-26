@@ -1,46 +1,35 @@
+import { siteConfig } from '../config/site';
+
 interface HeroProps {
   onOrder: () => void;
-  lastCode: string | null;
 }
 
-export function Hero({ onOrder, lastCode }: HeroProps) {
+export function Hero({ onOrder }: HeroProps) {
   return (
-    <section className="hero">
-      <div className="hero-bg" />
+    <section className="hero" id="hero">
+      <div className="hero-bg" style={{ backgroundImage: `url(${siteConfig.heroImage})` }} />
+      <div className="hero-overlay" />
       <div className="hero-content">
-        <span className="hero-badge">ديكو وركشوبس</span>
-        <h1>نحوّل مساحتك إلى تحفة</h1>
+        <span className="hero-badge">{siteConfig.brand.name}</span>
+        <h1>{siteConfig.brand.tagline}</h1>
         <p className="hero-subtitle">
-          تجديد وتشطيب داخلي احترافي — من التصميم إلى التسليم. تابع مشروعك لحظة بلحظة.
+          تجديد وتشطيب داخلي احترافي — من التصميم إلى التسليم بأعلى جودة وأفضل الأسعار
         </p>
         <div className="hero-actions">
           <button className="btn btn-primary btn-lg" onClick={onOrder}>
-            ابدأ مشروعك الآن
+            اطلب الآن
           </button>
-          {lastCode && (
-            <div className="last-code-banner">
-              <span>آخر كود مشروع:</span>
-              <span className="mono">{lastCode}</span>
+          <a href="#portfolio" className="btn btn-ghost-light btn-lg">
+            معرض أعمالنا
+          </a>
+        </div>
+        <div className="hero-stats">
+          {siteConfig.stats.map((s, i) => (
+            <div key={i} className="hero-stat">
+              <span className="hero-stat-value">{s.value}</span>
+              <span className="hero-stat-label">{s.label}</span>
             </div>
-          )}
-        </div>
-      </div>
-
-      <div className="hero-features">
-        <div className="hero-feature">
-          <span className="feature-icon">🎨</span>
-          <h3>تصميم مخصص</h3>
-          <p>خطط تصميم تناسب ذوقك وميزانيتك</p>
-        </div>
-        <div className="hero-feature">
-          <span className="feature-icon">👷</span>
-          <h3>فريق محترف</h3>
-          <p>عمال مهرة في كل التخصصات</p>
-        </div>
-        <div className="hero-feature">
-          <span className="feature-icon">📱</span>
-          <h3>تتبع مباشر</h3>
-          <p>تابع تقدم مشروعك في أي وقت</p>
+          ))}
         </div>
       </div>
     </section>

@@ -7,42 +7,11 @@ export type ProjectStatus =
   | 'completed'
   | 'cancelled';
 
-export type PropertyType =
-  | 'apartment'
-  | 'villa'
-  | 'office'
-  | 'shop'
-  | 'restaurant'
-  | 'other';
-
-export type WorkType =
-  | 'full_renovation'
-  | 'kitchen'
-  | 'bathroom'
-  | 'painting'
-  | 'flooring'
-  | 'ceiling'
-  | 'custom';
-
-export type WorkerRole =
-  | 'carpenter'
-  | 'painter'
-  | 'electrician'
-  | 'plumber'
-  | 'tiler'
-  | 'general'
-  | 'manager';
-
+export type PropertyType = 'apartment' | 'villa' | 'office' | 'shop' | 'restaurant' | 'other';
+export type WorkType = 'full_renovation' | 'kitchen' | 'bathroom' | 'painting' | 'flooring' | 'ceiling' | 'custom';
+export type WorkerRole = 'carpenter' | 'painter' | 'electrician' | 'plumber' | 'tiler' | 'general' | 'manager';
 export type WorkerStatus = 'available' | 'busy' | 'offline';
-
-export type MaterialCategory =
-  | 'wood'
-  | 'paint'
-  | 'tile'
-  | 'electrical'
-  | 'plumbing'
-  | 'hardware'
-  | 'other';
+export type MaterialCategory = 'wood' | 'paint' | 'tile' | 'electrical' | 'plumbing' | 'hardware' | 'other';
 
 export interface WorkerRef {
   _id: string;
@@ -133,12 +102,7 @@ export interface Worker {
   role: WorkerRole;
   skills: string[];
   status: WorkerStatus;
-  assignedProjects: Array<{
-    _id: string;
-    code: string;
-    title: string;
-    status: ProjectStatus;
-  }>;
+  assignedProjects: Array<{ _id: string; code: string; title: string; status: ProjectStatus }>;
   dailyRate: number;
   avatar?: string;
   createdAt: string;
@@ -191,25 +155,6 @@ export const PROJECT_STATUS_LABELS: Record<ProjectStatus, string> = {
   cancelled: 'ملغي',
 };
 
-export const PROPERTY_TYPE_LABELS: Record<PropertyType, string> = {
-  apartment: 'شقة',
-  villa: 'فيلا',
-  office: 'مكتب',
-  shop: 'محل',
-  restaurant: 'مطعم',
-  other: 'أخرى',
-};
-
-export const WORK_TYPE_LABELS: Record<WorkType, string> = {
-  full_renovation: 'تجديد شامل',
-  kitchen: 'مطبخ',
-  bathroom: 'حمام',
-  painting: 'دهانات',
-  flooring: 'أرضيات',
-  ceiling: 'أسقف',
-  custom: 'مخصص',
-};
-
 export const WORKER_ROLE_LABELS: Record<WorkerRole, string> = {
   carpenter: 'نجار',
   painter: 'دهان',
@@ -237,8 +182,6 @@ export const MATERIAL_CATEGORY_LABELS: Record<MaterialCategory, string> = {
 };
 
 export const PROJECT_STATUSES = Object.keys(PROJECT_STATUS_LABELS) as ProjectStatus[];
-export const PROPERTY_TYPES = Object.keys(PROPERTY_TYPE_LABELS) as PropertyType[];
-export const WORK_TYPES = Object.keys(WORK_TYPE_LABELS) as WorkType[];
 export const WORKER_ROLES = Object.keys(WORKER_ROLE_LABELS) as WorkerRole[];
 export const WORKER_STATUSES = Object.keys(WORKER_STATUS_LABELS) as WorkerStatus[];
 export const MATERIAL_CATEGORIES = Object.keys(MATERIAL_CATEGORY_LABELS) as MaterialCategory[];

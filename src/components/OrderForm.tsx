@@ -1,13 +1,7 @@
 import { useState } from 'react';
 import { api } from '../lib/api';
-import { showToast } from './ui';
-import {
-  PROPERTY_TYPES,
-  PROPERTY_TYPE_LABELS,
-  WORK_TYPES,
-  WORK_TYPE_LABELS,
-  type ProjectInput,
-} from '../types';
+import { siteConfig } from '../config/site';
+import type { WorkType } from '../types';
 
 interface OrderFormProps {
   onDone: () => void;
@@ -15,18 +9,13 @@ interface OrderFormProps {
 
 export function OrderForm({ onDone }: OrderFormProps) {
   const [form, setForm] = useState({
-    title: '',
-    description: '',
-    customerName: '',
-    customerPhone: '',
-    customerEmail: '',
-    customerAddress: '',
-    propertyType: 'apartment' as ProjectInput['propertyType'],
-    workType: 'full_renovation' as ProjectInput['workType'],
-    budget: '',
-    notes: '',
+    name: '',
+    phone: '',
+    workType: '',
+    spaceSize: '',
   });
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState<string | null>(null);
 
   function update<K extends keyof typeof form>(key: K, value: string) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -36,144 +25,111 @@ export function OrderForm({ onDone }: OrderFormProps) {
     e.preventDefault();
     setLoading(true);
     try {
-      const data: ProjectInput = {
-        title: form.title,
-        description: form.description,
-        customer: {
-          name: form.customerName,
-          phone: form.customerPhone,
-          email: form.customerEmail || undefined,
-          address: form.customerAddress || undefined,
-        },
-        propertyType: form.propertyType,
-        workType: form.workType,
-        budget: form.budget ? Number(form.budget) : 0,
-        notes: form.notes,
+      const workTypeMap: Record<string, WorkType> = {
+        'تجديد شامل': 'full_renovation',
+        'مطبخ': 'kitchen',
+        'حمام': 'bathroom',
+        'دهانات': 'painting',
+        'أرضيات': 'flooring',
+        'أسقف': 'ceiling',
+        'أخرى': 'custom',
       };
-      const project = await api.createProject(data);
-      showToast(`تم إنشاء الطلب بنجاح — كود المشروع: ${project.code}`, 'success');
-      onDone();
+      const mappedWorkType = workTypeMap[form.workType] ?? 'custom';
+
+      const project = await api.createProject({
+        title: `${form.workType} — ${form.spaceSize}`,
+        description: `مساحة العمل: ${form.spaceSize}`,
+        customer: {
+          name: form.name,
+          phone: form.phone,
+        },
+        workType: mappedWorkType,
+      });
+      setSuccess(project.code);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'فشل إنشاء الطلب';
-      showToast(msg, 'error');
+      const msg = err instanceof Error ? err.message : 'فشل إرسال الطلب';
+      alert(msg);
     } finally {
       setLoading(false);
     }
   }
 
+  if (success) {
+    return (
+      <div className="order-success" id="order">
+        <div className="order-success-card">
+          <div className="order-success-icon">✓</div>
+          <h2>تم استلام طلبك بنجاح!</h2>
+          <p>كود مشروعك هو:</p>
+          <div className="order-code">{success}</div>
+          <p className="order-success-note">
+            احتفظ بهذا الكود لتتبع حالة مشروعك في أي وقت من صفحة "تتبع مشروع".
+          </p>
+          <button className="btn btn-primary btn-lg" onClick={onDone}>
+            العودة للرئيسية
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="card form-card">
-      <h2 className="form-title">طلب تصميم / تجديد</h2>
-      <form onSubmit={handleSubmit} className="form-grid">
-        <div className="form-field">
-          <label>عنوان المشروع *</label>
-          <input
-            required
-            value={form.title}
-            onChange={(e) => update('title', e.target.value)}
-            placeholder="مثال: تجديد شقة بالكامل"
-          />
-        </div>
+    <section className="order-section" id="order">
+      <div className="container">
+        <div className="order-card">
+          <div className="section-header">
+            <span className="section-tag">اطلب الآن</span>
+            <h2>نموذج طلب تصميم</h2>
+            <p>املأ النموذج التالي وسنتواصل معك في أقرب وقت</p>
+          </div>
+          <form onSubmit={handleSubmit} className="order-form">
+            <div className="order-form-field">
+              <label>الاسم *</label>
+              <input
+                required
+                value={form.name}
+                onChange={(e) => update('name', e.target.value)}
+                placeholder="الاسم الكامل"
+              />
+            </div>
 
-        <div className="form-field">
-          <label>نوع العقار</label>
-          <select value={form.propertyType} onChange={(e) => update('propertyType', e.target.value)}>
-            {PROPERTY_TYPES.map((t) => (
-              <option key={t} value={t}>
-                {PROPERTY_TYPE_LABELS[t]}
-              </option>
-            ))}
-          </select>
-        </div>
+            <div className="order-form-field">
+              <label>رقم الهاتف *</label>
+              <input
+                required
+                type="tel"
+                value={form.phone}
+                onChange={(e) => update('phone', e.target.value)}
+                placeholder="07XXXXXXXX"
+              />
+            </div>
 
-        <div className="form-field">
-          <label>نوع العمل</label>
-          <select value={form.workType} onChange={(e) => update('workType', e.target.value)}>
-            {WORK_TYPES.map((t) => (
-              <option key={t} value={t}>
-                {WORK_TYPE_LABELS[t]}
-              </option>
-            ))}
-          </select>
-        </div>
+            <div className="order-form-field">
+              <label>نوع العمل *</label>
+              <select required value={form.workType} onChange={(e) => update('workType', e.target.value)}>
+                <option value="" disabled>اختر نوع العمل</option>
+                {siteConfig.workTypes.map((w) => (
+                  <option key={w} value={w}>{w}</option>
+                ))}
+              </select>
+            </div>
 
-        <div className="form-field">
-          <label>الميزانية التقديرية</label>
-          <input
-            type="number"
-            value={form.budget}
-            onChange={(e) => update('budget', e.target.value)}
-            placeholder="0"
-          />
-        </div>
+            <div className="order-form-field">
+              <label>مساحة العمل *</label>
+              <select required value={form.spaceSize} onChange={(e) => update('spaceSize', e.target.value)}>
+                <option value="" disabled>اختر المساحة</option>
+                {siteConfig.spaceSizes.map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+            </div>
 
-        <div className="form-field">
-          <label>الاسم *</label>
-          <input
-            required
-            value={form.customerName}
-            onChange={(e) => update('customerName', e.target.value)}
-            placeholder="الاسم الكامل"
-          />
+            <button type="submit" className="btn btn-primary btn-lg order-submit-btn" disabled={loading}>
+              {loading ? 'جاري الإرسال...' : 'إرسال الطلب'}
+            </button>
+          </form>
         </div>
-
-        <div className="form-field">
-          <label>الهاتف *</label>
-          <input
-            required
-            value={form.customerPhone}
-            onChange={(e) => update('customerPhone', e.target.value)}
-            placeholder="رقم الهاتف"
-          />
-        </div>
-
-        <div className="form-field">
-          <label>البريد الإلكتروني</label>
-          <input
-            type="email"
-            value={form.customerEmail}
-            onChange={(e) => update('customerEmail', e.target.value)}
-            placeholder="example@email.com"
-          />
-        </div>
-
-        <div className="form-field">
-          <label>العنوان</label>
-          <input
-            value={form.customerAddress}
-            onChange={(e) => update('customerAddress', e.target.value)}
-            placeholder="عنوان العقار"
-          />
-        </div>
-
-        <div className="form-field form-field-full">
-          <label>وصف المشروع</label>
-          <textarea
-            value={form.description}
-            onChange={(e) => update('description', e.target.value)}
-            rows={3}
-            placeholder="اشرح تفاصيل المشروع..."
-          />
-        </div>
-
-        <div className="form-field form-field-full">
-          <label>ملاحظات إضافية</label>
-          <textarea
-            value={form.notes}
-            onChange={(e) => update('notes', e.target.value)}
-            rows={2}
-          />
-        </div>
-
-        <div className="form-actions form-field-full">
-          <button type="submit" className="btn btn-primary" disabled={loading}>
-            {loading ? 'جاري الإرسال...' : 'إرسال الطلب'}
-          </button>
-          <button type="button" className="btn btn-ghost" onClick={onDone}>
-            إلغاء
-          </button>
-        </div>
-      </form>
-    </div>
+      </div>
+    </section>
   );
 }
