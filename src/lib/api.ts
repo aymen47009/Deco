@@ -3,6 +3,7 @@ import type {
   Worker, WorkerInput, WorkerStatus,
   Material, MaterialInput,
   SiteConfig, SiteConfigInput,
+  GalleryImage, GalleryCategory,
 } from '../types';
 
 const API_BASE = '/api';
@@ -73,14 +74,21 @@ export const api = {
       return r.json() as Promise<{ url: string }>;
     });
   },
-  addGalleryImage: (file: File) => {
+
+  getGalleryImages: (category?: GalleryCategory) =>
+    request<GalleryImage[]>(`/gallery${category ? `?category=${category}` : ''}`),
+  uploadGalleryImage: (file: File, category: GalleryCategory, title?: string) => {
     const formData = new FormData();
     formData.append('image', file);
-    return fetch(`${API_BASE}/siteconfig/gallery/add`, { method: 'POST', body: formData }).then((r) => {
+    formData.append('category', category);
+    if (title) formData.append('title', title);
+    return fetch(`${API_BASE}/gallery`, { method: 'POST', body: formData }).then((r) => {
       if (!r.ok) throw new Error('Upload failed');
-      return r.json() as Promise<SiteConfig>;
+      return r.json() as Promise<GalleryImage>;
     });
   },
-  removeGalleryImage: (index: number) =>
-    request<SiteConfig>(`/siteconfig/gallery/${index}`, { method: 'DELETE' }),
+  deleteGalleryImage: (id: string) =>
+    request<{ message: string }>(`/gallery/${id}`, { method: 'DELETE' }),
+  updateGalleryImageOrder: (id: string, order: number) =>
+    request<GalleryImage>(`/gallery/${id}/order`, { method: 'PATCH', body: JSON.stringify({ order }) }),
 };

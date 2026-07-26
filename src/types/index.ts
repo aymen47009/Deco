@@ -10,6 +10,7 @@ export type ProjectStatus =
 export type WorkerRole = 'placo' | 'wood' | 'marble' | 'pvc' | 'demontable' | 'designer' | 'manager';
 export type WorkerStatus = 'available' | 'busy' | 'on_leave' | 'inactive';
 export type MaterialCategory = 'placo' | 'wood' | 'marble' | 'pvc' | 'demontable' | 'tools' | 'other';
+export type GalleryCategory = 'hero' | 'gallery' | 'service';
 
 export interface SiteConfig {
   _id: string;
@@ -33,7 +34,6 @@ export interface SiteConfig {
   whatsapp: string;
   instagram: string;
   facebook: string;
-  galleryImages: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -129,6 +129,17 @@ export interface ProjectInput {
   spaceSize: string;
 }
 
+export interface GalleryImage {
+  _id: string;
+  url: string;
+  publicId: string;
+  title: string;
+  category: GalleryCategory;
+  order: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export const PROJECT_STATUS_LABELS: Record<ProjectStatus, string> = {
   new: 'جديد',
   in_review: 'قيد المراجعة',
@@ -173,6 +184,14 @@ export const MATERIAL_CATEGORY_LABELS: Record<MaterialCategory, string> = {
 };
 
 export const MATERIAL_CATEGORIES = Object.keys(MATERIAL_CATEGORY_LABELS) as MaterialCategory[];
+
+export const GALLERY_CATEGORY_LABELS: Record<GalleryCategory, string> = {
+  hero: 'القسم الرئيسي',
+  gallery: 'معرض الأعمال',
+  service: 'الخدمات',
+};
+
+export const GALLERY_CATEGORIES = Object.keys(GALLERY_CATEGORY_LABELS) as GalleryCategory[];
 
 export const WORKSHOP_TYPES = [
   'بلاكو بلاتر',
