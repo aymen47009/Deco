@@ -1,50 +1,48 @@
-type Props = {
-  onOrder: () => void
-  lastCode: string | null
+interface HeroProps {
+  onOrder: () => void;
+  lastCode: string | null;
 }
 
-export function Hero({ onOrder, lastCode }: Props) {
+export function Hero({ onOrder, lastCode }: HeroProps) {
   return (
     <section className="hero">
+      <div className="hero-bg" />
       <div className="hero-content">
-        {lastCode && (
-          <div className="success-banner">
-            <strong>تم استلام طلبك بنجاح!</strong>
-            <span>رقم طلبك: <code>{lastCode}</code></span>
-            <p>احتفظ بهذا الرقم لمتابعة حالة طلبك لاحقاً.</p>
-          </div>
-        )}
-
-        <span className="eyebrow">استوديو ديكور وتصميم</span>
-        <h1>نحوّل مساحاتك إلى تصاميم استثنائية</h1>
-        <p className="hero-lead">
-          ديكو وركشوبس استوديو متخصص في التصميم الداخلي والخارجي وتصميم الأثاث.
-          أرسل طلبك الآن واحصل على رقم مرجعي فريد لتتبع مشروعك خطوة بخطوة.
+        <span className="hero-badge">ديكو وركشوبس</span>
+        <h1>نحوّل مساحتك إلى تحفة</h1>
+        <p className="hero-subtitle">
+          تجديد وتشطيب داخلي احترافي — من التصميم إلى التسليم. تابع مشروعك لحظة بلحظة.
         </p>
         <div className="hero-actions">
           <button className="btn btn-primary btn-lg" onClick={onOrder}>
-            ابدأ طلب تصميم
+            ابدأ مشروعك الآن
           </button>
+          {lastCode && (
+            <div className="last-code-banner">
+              <span>آخر كود مشروع:</span>
+              <span className="mono">{lastCode}</span>
+            </div>
+          )}
         </div>
+      </div>
 
-        <div className="hero-features">
-          <div className="feature">
-            <span className="feature-num">01</span>
-            <h3>تصميم مخصص</h3>
-            <p>كل مشروع يُصمم حسب ذوقك واحتياجاتك ومساحتك.</p>
-          </div>
-          <div className="feature">
-            <span className="feature-num">02</span>
-            <h3>رقم طلب فريد</h3>
-            <p>يُولّد رقم مرجعي تلقائياً لكل طلب لتتبع سلس وسهل.</p>
-          </div>
-          <div className="feature">
-            <span className="feature-num">03</span>
-            <h3>متابعة دقيقة</h3>
-            <p>تابع حالة طلبك من جديد إلى مكتمل في أي وقت.</p>
-          </div>
+      <div className="hero-features">
+        <div className="hero-feature">
+          <span className="feature-icon">🎨</span>
+          <h3>تصميم مخصص</h3>
+          <p>خطط تصميم تناسب ذوقك وميزانيتك</p>
+        </div>
+        <div className="hero-feature">
+          <span className="feature-icon">👷</span>
+          <h3>فريق محترف</h3>
+          <p>عمال مهرة في كل التخصصات</p>
+        </div>
+        <div className="hero-feature">
+          <span className="feature-icon">📱</span>
+          <h3>تتبع مباشر</h3>
+          <p>تابع تقدم مشروعك في أي وقت</p>
         </div>
       </div>
     </section>
-  )
+  );
 }

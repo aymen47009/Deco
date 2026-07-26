@@ -1,44 +1,71 @@
-import mongoose from "mongoose";
+const mongoose = require('mongoose');
 
-const ImageItemSchema = new mongoose.Schema(
+const projectSchema = new mongoose.Schema(
   {
-    url: String,
-    category: { type: String, enum: ["request", "progress", "completion"], default: "request" },
-    uploadedAt: { type: Date, default: Date.now },
-  },
-  { _id: true }
-);
-
-const FinancialSchema = new mongoose.Schema(
-  {
-    totalCost: { type: Number, default: 0 },
-    workerFee: { type: Number, default: 0 },
-    customerPaid: { type: Boolean, default: false },
-    workerPaid: { type: Boolean, default: false },
-  },
-  { _id: false }
-);
-
-const ProjectSchema = new mongoose.Schema(
-  {
-    title: { type: String, required: true },
-    description: { type: String, default: "" },
-    customerId: { type: mongoose.Schema.Types.ObjectId, ref: "Customer" },
-    workerId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    code: { type: String, required: true, unique: true, index: true },
+    title: { type: String, required: true, trim: true },
+    description: { type: String, default: '', trim: true },
+    customer: {
+      name: { type: String, required: true, trim: true },
+      phone: { type: String, required: true, trim: true },
+      email: { type: String, default: '', trim: true },
+      address: { type: String, default: '', trim: true },
+    },
+    propertyType: {
+      type: String,
+      enum: ['apartment', 'villa', 'office', 'shop', 'restaurant', 'other'],
+      default: 'apartment',
+    },
+    workType: {
+      type: String,
+      enum: ['full_renovation', 'kitchen', 'bathroom', 'painting', 'flooring', 'ceiling', 'custom'],
+      default: 'full_renovation',
+    },
+    budget: { type: Number, default: 0 },
     status: {
       type: String,
-      enum: ["pending", "in_progress", "validated", "paid"],
-      default: "pending",
+      enum: ['new', 'in_review', 'approved', 'in_progress', 'review', 'completed', 'cancelled'],
+      default: 'new',
     },
-    type: { type: String, enum: ["decor", "placo", "pmma", "other"], default: "decor" },
-    city: { type: String, default: "" },
-    area: { type: Number, default: 0 },
-    images: [ImageItemSchema],
-    financials: { type: FinancialSchema, default: () => ({}) },
-    validatedAt: { type: Date },
-    completedAt: { type: Date },
+    assignedWorkers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Worker' }],
+    materials: [
+      {
+        name: { type: String, required: true, trim: true },
+        quantity: { type: Number, default: 1 },
+        unit: { type: String, default: 'piece' },
+        unitCost: { type: Number, default: 0 },
+        totalCost: { type: Number, default: 0 },
+      },
+    ],
+    images: [{ url: String, publicId: String }],
+    startDate: { type: Date },
+    expectedEndDate: { type: Date },
+    actualEndDate: { type: Date },
+    progress: { type: Number, default: 0, min: 0, max: 100 },
+    notes: { type: String, default: '' },
   },
-  { strict: false, timestamps: true }
+  { timestamps: true }
 );
 
-export const Project = mongoose.model("Project", ProjectSchema);
+projectSchema.pre('validate', async function preValidate(next) {
+  if (this.code) return next();
+  const count = await mongoose.model('Project').countDocuments();
+  this.code = `DW-${String(count + 1).padStart(4, '0')}`;
+  return next();
+});
+
+projectSchema.methods.recalculateProgress = function recalculateProgress() {
+  const statusMap = {
+    new: 0,
+    in_review: 10,
+    approved: 20,
+    in_progress: 50,
+    review: 85,
+    completed: 100,
+    cancelled: 0,
+  };
+  this.progress = statusMap[this.status] ?? 0;
+  return this.progress;
+};
+
+module.exports = mongoose.model('Project', projectSchema);

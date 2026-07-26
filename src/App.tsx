@@ -1,26 +1,38 @@
-import { useState } from 'react'
-import { supabase, type ProjectInsert } from './lib/supabase'
+import { useState } from 'react';
+import { Hero } from './components/Hero';
+import { OrderForm } from './components/OrderForm';
+import { ProjectsList } from './components/ProjectsList';
+import { WorkersList } from './components/WorkersList';
+import { MaterialsList } from './components/MaterialsList';
+import { CustomerPortal } from './components/CustomerPortal';
+import { AdminDashboard } from './components/AdminDashboard';
+import { WorkerDashboard } from './components/WorkerDashboard';
+import { ToastContainer } from './components/ui';
 
-import { OrderForm } from './components/OrderForm'
-import { ProjectsList } from './components/ProjectsList'
-import { Hero } from './components/Hero'
-
-type View = 'home' | 'order' | 'projects'
+type View = 'home' | 'order' | 'projects' | 'workers' | 'materials' | 'track' | 'admin' | 'worker';
 
 export default function App() {
-  const [view, setView] = useState<View>('home')
-  const [lastCode, setLastCode] = useState<string | null>(null)
+  const [view, setView] = useState<View>('home');
+  const [lastCode, setLastCode] = useState<string | null>(null);
 
-  async function submitProject(data: ProjectInsert) {
-    const { data: row, error } = await supabase
-      .from('projects')
-      .insert(data)
-      .select('code')
-      .single()
-    if (error) throw error
-    setLastCode(row.code)
-    setView('home')
+  function handleOrderDone() {
+    setView('projects');
   }
+
+  function handleOrderSubmit() {
+    setLastCode('DW-' + String(Math.floor(Math.random() * 9000) + 1000));
+  }
+
+  const navItems: { key: View; label: string }[] = [
+    { key: 'home', label: 'الرئيسية' },
+    { key: 'order', label: 'طلب تصميم' },
+    { key: 'projects', label: 'المشاريع' },
+    { key: 'workers', label: 'العمال' },
+    { key: 'materials', label: 'المخزون' },
+    { key: 'track', label: 'تتبع مشروع' },
+    { key: 'admin', label: 'لوحة الإدارة' },
+    { key: 'worker', label: 'لوحة العامل' },
+  ];
 
   return (
     <div className="app">
@@ -31,25 +43,32 @@ export default function App() {
             <span className="brand-name">ديكو وركشوبس</span>
           </button>
           <nav className="nav">
-            <button className={view === 'home' ? 'active' : ''} onClick={() => setView('home')}>الرئيسية</button>
-            <button className={view === 'order' ? 'active' : ''} onClick={() => setView('order')}>طلب تصميم</button>
-            <button className={view === 'projects' ? 'active' : ''} onClick={() => setView('projects')}>طلباتي</button>
+            {navItems.map((item) => (
+              <button
+                key={item.key}
+                className={view === item.key ? 'active' : ''}
+                onClick={() => setView(item.key)}
+              >
+                {item.label}
+              </button>
+            ))}
           </nav>
         </div>
       </header>
 
       <main className="container main">
         {view === 'home' && (
-          <>
-            <Hero onOrder={() => setView('order')} lastCode={lastCode} />
-          </>
+          <Hero onOrder={() => setView('order')} lastCode={lastCode} />
         )}
         {view === 'order' && (
-          <OrderForm onSubmit={submitProject} onDone={() => setView('home')} />
+          <OrderForm onDone={handleOrderDone} />
         )}
-        {view === 'projects' && (
-          <ProjectsList />
-        )}
+        {view === 'projects' && <ProjectsList />}
+        {view === 'workers' && <WorkersList />}
+        {view === 'materials' && <MaterialsList />}
+        {view === 'track' && <CustomerPortal />}
+        {view === 'admin' && <AdminDashboard onNavigate={(v) => setView(v as View)} />}
+        {view === 'worker' && <WorkerDashboard />}
       </main>
 
       <footer className="site-footer">
@@ -57,6 +76,8 @@ export default function App() {
           <p>© {new Date().getFullYear()} ديكو وركشوبس — جميع الحقوق محفوظة</p>
         </div>
       </footer>
+
+      <ToastContainer />
     </div>
-  )
+  );
 }

@@ -1,55 +1,71 @@
-import { Router } from "express";
-import { Customer } from "../models/Customer.js";
+const Customer = require('../models/Customer');
 
-export const customerRouter = Router();
+const router = require('express').Router();
 
-customerRouter.get("/", async (_req, res, next) => {
+// GET /api/customers
+router.get('/', async (req, res) => {
   try {
-    const items = await Customer.find().sort({ createdAt: -1 });
-    res.json(items);
-  } catch (e) {
-    next(e);
+    const { search } = req.query;
+    const filter = {};
+    if (search) {
+      filter.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { phone: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+      ];
+    }
+    const customers = await Customer.find(filter).populate('projectIds', 'code title status').sort({ createdAt: -1 });
+    res.json(customers);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
-customerRouter.get("/:id", async (req, res, next) => {
+// GET /api/customers/:id
+router.get('/:id', async (req, res) => {
   try {
-    const item = await Customer.findById(req.params.id);
-    if (!item) return res.status(404).json({ error: "Customer not found" });
-    res.json(item);
-  } catch (e) {
-    next(e);
+    const customer = await Customer.findById(req.params.id).populate('projectIds');
+    if (!customer) return res.status(404).json({ error: 'Customer not found' });
+    res.json(customer);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
-customerRouter.post("/", async (req, res, next) => {
+// POST /api/customers
+router.post('/', async (req, res) => {
   try {
-    const item = await Customer.create(req.body || {});
-    res.status(201).json(item);
-  } catch (e) {
-    next(e);
+    const customer = new Customer(req.body);
+    await customer.save();
+    res.status(201).json(customer);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
   }
 });
 
-customerRouter.put("/:id", async (req, res, next) => {
+// PUT /api/customers/:id
+router.put('/:id', async (req, res) => {
   try {
-    const item = await Customer.findByIdAndUpdate(req.params.id, req.body, {
+    const customer = await Customer.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
-      runValidators: false,
+      runValidators: true,
     });
-    if (!item) return res.status(404).json({ error: "Customer not found" });
-    res.json(item);
-  } catch (e) {
-    next(e);
+    if (!customer) return res.status(404).json({ error: 'Customer not found' });
+    res.json(customer);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
   }
 });
 
-customerRouter.delete("/:id", async (req, res, next) => {
+// DELETE /api/customers/:id
+router.delete('/:id', async (req, res) => {
   try {
-    const item = await Customer.findByIdAndDelete(req.params.id);
-    if (!item) return res.status(404).json({ error: "Customer not found" });
-    res.json({ ok: true });
-  } catch (e) {
-    next(e);
+    const customer = await Customer.findByIdAndDelete(req.params.id);
+    if (!customer) return res.status(404).json({ error: 'Customer not found' });
+    res.json({ message: 'Customer deleted' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
+
+module.exports = router;
