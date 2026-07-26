@@ -2,14 +2,16 @@ import { useState } from 'react';
 import { ProjectsList } from './ProjectsList';
 import { WorkersList } from './WorkersList';
 import { MaterialsList } from './MaterialsList';
+import { SiteEditor } from './SiteEditor';
 import { ToastContainer } from './ui';
 
-type AdminTab = 'projects' | 'workers' | 'materials';
+type AdminTab = 'projects' | 'workers' | 'materials' | 'site';
 
 const TABS: { key: AdminTab; label: string }[] = [
   { key: 'projects', label: 'المشاريع' },
   { key: 'workers', label: 'العمال' },
   { key: 'materials', label: 'المواد' },
+  { key: 'site', label: 'مظهر الموقع' },
 ];
 
 interface Props {
@@ -45,6 +47,7 @@ export function AdminDashboard({ onExit }: Props) {
           {tab === 'projects' && <ProjectsList />}
           {tab === 'workers' && <WorkersList />}
           {tab === 'materials' && <MaterialsList />}
+          {tab === 'site' && <SiteEditor />}
         </div>
       </main>
       <ToastContainer />
