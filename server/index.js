@@ -110,6 +110,52 @@ async function seedAdmin() {
   }
 }
 
+const SettingSchema = new mongoose.Schema(
+  {
+    key: { type: String, required: true, unique: true, index: true },
+    value: { type: mongoose.Schema.Types.Mixed, default: {} },
+  },
+  { strict: false, timestamps: true }
+);
+const Setting = mongoose.model("Setting", SettingSchema);
+
+const DEFAULT_SETTINGS = {
+  heroImage: "https://images.pexels.com/photos/7567307/pexels-photo-7567307.jpeg?auto=compress&cs=tinysrgb&w=1400",
+  galleryImages: [
+    "https://images.pexels.com/photos/6492383/pexels-photo-6492383.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "https://images.pexels.com/photos/5824477/pexels-photo-5824477.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "https://images.pexels.com/photos/6492392/pexels-photo-6492392.jpeg?auto=compress&cs=tinysrgb&w=800",
+  ],
+  workTypeIcons: {
+    placo: "🧱",
+    pvc: "⚪",
+    separation: "🪨",
+    marble: "◈",
+    wood: "🪵",
+  },
+  services: [
+    { icon: "🧱", title: "بلاكو بلاتر", desc: "أسقف وجدران بلاكو بلاتر بأدق التفاصيل" },
+    { icon: "⚪", title: "بي في سي السقف", desc: "أسقف بي في سي عصرية ومتينة" },
+    { icon: "🪨", title: "سيباراسيون", desc: "فواصل وتقسيمات داخلية احترافية" },
+    { icon: "◈", title: "بديل الرخام", desc: "أرضيات وجدران بديل الرخام الفاخر" },
+    { icon: "🪵", title: "بديل الخشب", desc: "تشطيبات بديل الخشب الأنيق" },
+  ],
+};
+async function getSettings() {
+  await ensureDb();
+  const doc = await Setting.findOne({ key: "site" });
+  return { ...DEFAULT_SETTINGS, ...(doc?.value || {}) };
+}
+async function saveSettings(value) {
+  await ensureDb();
+  await Setting.findOneAndUpdate(
+    { key: "site" },
+    { key: "site", value },
+    { upsert: true, new: true }
+  );
+  return getSettings();
+}
+
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: "15mb" }));
@@ -119,6 +165,16 @@ const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 15 
 app.get("/api/health", async (_req, res) => {
   try { await ensureDb(); res.json({ ok: true, db: mongoose.connection.readyState === 1 }); }
   catch (e) { res.json({ ok: true, db: false, error: e.message }); }
+});
+
+app.get("/api/settings", async (_req, res) => {
+  try { res.json(await getSettings()); }
+  catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.put("/api/settings", authMiddleware, requireAdmin, async (req, res) => {
+  try { res.json(await saveSettings(req.body || {})); }
+  catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 app.post("/api/auth/login", async (req, res) => {

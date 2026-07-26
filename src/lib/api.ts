@@ -1,4 +1,4 @@
-import type { Customer, Project, User } from "../types";
+import type { Customer, Project, User, SiteSettings } from "../types";
 
 const BASE = "/api";
 
@@ -33,6 +33,11 @@ export const api = {
     login: (phone: string, password: string) =>
       req<LoginResponse>("/auth/login", { method: "POST", body: JSON.stringify({ phone, password }) }),
     me: () => req<User>("/auth/me"),
+  },
+  settings: {
+    get: () => req<SiteSettings>("/settings"),
+    update: (data: Partial<SiteSettings>) =>
+      req<SiteSettings>("/settings", { method: "PUT", body: JSON.stringify(data) }),
   },
   projects: {
     list: (status?: string) => req<Project[]>(`/projects${status ? `?status=${status}` : ""}`),
