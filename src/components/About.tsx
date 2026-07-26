@@ -23,10 +23,7 @@ export function About({ config }: { config: SiteConfig }) {
             </div>
           </div>
           <div className="about-image">
-            <img
-              src="https://images.pexels.com/photos/6969822/pexels-photo-6969822.jpeg?auto=compress&cs=tinysrgb&w=800"
-              alt="فريق العمل"
-            />
+            <img src="https://images.pexels.com/photos/6969822/pexels-photo-6969822.jpeg?auto=compress&cs=tinysrgb&w=800" alt="فريق العمل" />
           </div>
         </div>
       </div>

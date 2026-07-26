@@ -13,16 +13,10 @@ export function Hero({ config, onOrder }: HeroProps) {
       <div className="hero-content">
         <span className="hero-badge">{config.brand_name}</span>
         <h1>{config.tagline}</h1>
-        <p className="hero-subtitle">
-          عمل احترافي — تسليم في الوقت المناسب — أسعار مناسبة
-        </p>
+        <p className="hero-subtitle">عمل احترافي — تسليم في الوقت المناسب — أسعار مناسبة</p>
         <div className="hero-actions">
-          <button className="btn btn-primary btn-lg" onClick={onOrder}>
-            اطلب الآن
-          </button>
-          <a href="#portfolio" className="btn btn-ghost-light btn-lg">
-            معرض أعمالنا
-          </a>
+          <button className="btn btn-primary btn-lg" onClick={onOrder}>اطلب الآن</button>
+          <a href="#portfolio" className="btn btn-ghost-light btn-lg">معرض أعمالنا</a>
         </div>
       </div>
     </section>

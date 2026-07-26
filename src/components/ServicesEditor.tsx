@@ -3,10 +3,7 @@ import { db } from '../lib/db';
 import { showToast, Modal, ConfirmDialog } from './ui';
 import type { Service } from '../types';
 
-interface Props {
-  services: Service[];
-  onChanged: () => void;
-}
+interface Props { services: Service[]; onChanged: () => void; }
 
 export function ServicesEditor({ services, onChanged }: Props) {
   const [editing, setEditing] = useState<Service | null>(null);
@@ -15,19 +12,13 @@ export function ServicesEditor({ services, onChanged }: Props) {
 
   async function handleDelete() {
     if (!confirmDelete) return;
-    try {
-      await db.deleteService(confirmDelete.id);
-      showToast('تم الحذف', 'success');
-      setConfirmDelete(null);
-      onChanged();
-    } catch (e) { showToast(e instanceof Error ? e.message : 'فشل', 'error'); }
+    try { await db.deleteService(confirmDelete.id); showToast('تم الحذف', 'success'); setConfirmDelete(null); onChanged(); }
+    catch (e) { showToast(e instanceof Error ? e.message : 'فشل', 'error'); }
   }
 
   return (
     <div className="admin-section">
-      <div className="list-toolbar">
-        <button className="btn btn-primary" onClick={() => { setEditing(null); setShowForm(true); }}>+ إضافة خدمة</button>
-      </div>
+      <div className="list-toolbar"><button className="btn btn-primary" onClick={() => { setEditing(null); setShowForm(true); }}>+ إضافة خدمة</button></div>
       <div className="cards-grid">
         {services.map((s) => (
           <div key={s.id} className="card item-card">
@@ -50,17 +41,11 @@ export function ServicesEditor({ services, onChanged }: Props) {
 }
 
 function ServiceForm({ service, onDone }: { service: Service | null; onDone: () => void }) {
-  const [form, setForm] = useState({
-    icon: service?.icon ?? '🪟',
-    title: service?.title ?? '',
-    description: service?.description ?? '',
-    sort_order: service?.sort_order ?? 0,
-  });
+  const [form, setForm] = useState({ icon: service?.icon ?? '🪟', title: service?.title ?? '', description: service?.description ?? '', sort_order: service?.sort_order ?? 0 });
   const [saving, setSaving] = useState(false);
 
   async function submit(e: React.FormEvent) {
-    e.preventDefault();
-    setSaving(true);
+    e.preventDefault(); setSaving(true);
     try {
       if (service) { await db.updateService(service.id, form); showToast('تم التحديث', 'success'); }
       else { await db.createService(form); showToast('تمت الإضافة', 'success'); }
@@ -71,25 +56,11 @@ function ServiceForm({ service, onDone }: { service: Service | null; onDone: () 
 
   return (
     <form onSubmit={submit} className="form-grid">
-      <div className="form-field">
-        <label>الأيقونة (إيموجي)</label>
-        <input value={form.icon} onChange={(e) => setForm({ ...form, icon: e.target.value })} maxLength={4} />
-      </div>
-      <div className="form-field">
-        <label>الترتيب</label>
-        <input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })} />
-      </div>
-      <div className="form-field form-field-full">
-        <label>العنوان *</label>
-        <input required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
-      </div>
-      <div className="form-field form-field-full">
-        <label>الوصف</label>
-        <textarea rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
-      </div>
-      <div className="form-actions">
-        <button type="submit" className="btn btn-primary" disabled={saving}>{saving ? '...' : 'حفظ'}</button>
-      </div>
+      <div className="form-field"><label>الأيقونة (إيموجي)</label><input value={form.icon} onChange={(e) => setForm({ ...form, icon: e.target.value })} maxLength={4} /></div>
+      <div className="form-field"><label>الترتيب</label><input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })} /></div>
+      <div className="form-field form-field-full"><label>العنوان *</label><input required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></div>
+      <div className="form-field form-field-full"><label>الوصف</label><textarea rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
+      <div className="form-actions"><button type="submit" className="btn btn-primary" disabled={saving}>{saving ? '...' : 'حفظ'}</button></div>
     </form>
   );
 }

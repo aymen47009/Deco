@@ -22,30 +22,16 @@ export function CustomerPage() {
   useEffect(() => {
     (async () => {
       try {
-        const [c, s, p, t] = await Promise.all([
-          db.getConfig(), db.getServices(), db.getPortfolio(), db.getTestimonials(),
-        ]);
+        const [c, s, p, t] = await Promise.all([db.getConfig(), db.getServices(), db.getPortfolio(), db.getTestimonials()]);
         setConfig(c); setServices(s); setPortfolio(p); setTestimonials(t);
-      } catch (err) {
-        console.error('Failed to load content:', err);
-      } finally {
-        setLoading(false);
-      }
+      } catch (err) { console.error('Failed to load content:', err); }
+      finally { setLoading(false); }
     })();
   }, []);
 
-  function scrollToOrder() {
-    orderRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  function scrollToOrder() { orderRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
 
-  if (loading) {
-    return (
-      <div className="page-loading">
-        <Spinner label="جاري التحميل..." />
-        <ToastContainer />
-      </div>
-    );
-  }
+  if (loading) return <div className="page-loading"><Spinner label="جاري التحميل..." /><ToastContainer /></div>;
 
   return (
     <div className="customer-page">
@@ -54,9 +40,7 @@ export function CustomerPage() {
       <Portfolio items={portfolio} />
       <Testimonials items={testimonials} />
       <About config={config} />
-      <div ref={orderRef}>
-        <OrderForm config={config} />
-      </div>
+      <div ref={orderRef}><OrderForm config={config} /></div>
       <footer className="site-footer">
         <div className="container">
           <div className="footer-grid">
@@ -82,9 +66,7 @@ export function CustomerPage() {
               </div>
             </div>
           </div>
-          <div className="footer-bottom">
-            <p>© {new Date().getFullYear()} {config.brand_name} — جميع الحقوق محفوظة</p>
-          </div>
+          <div className="footer-bottom"><p>© {new Date().getFullYear()} {config.brand_name} — جميع الحقوق محفوظة</p></div>
         </div>
       </footer>
       <FloatingBar onClick={scrollToOrder} />

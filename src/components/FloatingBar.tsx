@@ -1,8 +1,4 @@
-interface FloatingBarProps {
-  onClick: () => void;
-}
-
-export function FloatingBar({ onClick }: FloatingBarProps) {
+export function FloatingBar({ onClick }: { onClick: () => void }) {
   return (
     <button className="floating-bar" onClick={onClick} aria-label="اطلب الآن">
       <span className="floating-bar-pulse" />

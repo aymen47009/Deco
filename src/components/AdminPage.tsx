@@ -19,9 +19,7 @@ const TABS: { key: AdminTab; label: string }[] = [
   { key: 'projects', label: 'الطلبات الواردة' },
 ];
 
-interface Props {
-  onExit: () => void;
-}
+interface Props { onExit: () => void; }
 
 export function AdminPage({ onExit }: Props) {
   const [tab, setTab] = useState<AdminTab>('config');
@@ -34,35 +32,22 @@ export function AdminPage({ onExit }: Props) {
   const [projectsLoading, setProjectsLoading] = useState(false);
 
   const loadAll = useCallback(async () => {
-    const [c, s, p, t] = await Promise.all([
-      db.getConfig(), db.getServices(), db.getPortfolio(), db.getTestimonials(),
-    ]);
+    const [c, s, p, t] = await Promise.all([db.getConfig(), db.getServices(), db.getPortfolio(), db.getTestimonials()]);
     setConfig(c); setServices(s); setPortfolio(p); setTestimonials(t);
   }, []);
 
   const loadProjects = useCallback(async () => {
     setProjectsLoading(true);
-    try { setProjects(await db.getProjects()); }
-    catch (e) { console.error(e); }
-    finally { setProjectsLoading(false); }
+    try { setProjects(await db.getProjects()); } catch (e) { console.error(e); } finally { setProjectsLoading(false); }
   }, []);
 
   useEffect(() => {
     (async () => {
-      try { await loadAll(); await loadProjects(); }
-      catch (e) { console.error(e); }
-      finally { setLoading(false); }
+      try { await loadAll(); await loadProjects(); } catch (e) { console.error(e); } finally { setLoading(false); }
     })();
   }, [loadAll, loadProjects]);
 
-  if (loading) {
-    return (
-      <div className="page-loading">
-        <Spinner label="جاري التحميل..." />
-        <ToastContainer />
-      </div>
-    );
-  }
+  if (loading) return <div className="page-loading"><Spinner label="جاري التحميل..." /><ToastContainer /></div>;
 
   return (
     <div className="admin-layout">
@@ -72,20 +57,12 @@ export function AdminPage({ onExit }: Props) {
           <span className="sidebar-name">{config.brand_name}</span>
         </div>
         <nav className="sidebar-nav">
-          {TABS.map((t) => (
-            <button key={t.key} className={tab === t.key ? 'active' : ''} onClick={() => setTab(t.key)}>
-              {t.label}
-            </button>
-          ))}
+          {TABS.map((t) => <button key={t.key} className={tab === t.key ? 'active' : ''} onClick={() => setTab(t.key)}>{t.label}</button>)}
         </nav>
-        <div className="sidebar-footer">
-          <button className="sidebar-role-btn" onClick={onExit}>← واجهة الزبون</button>
-        </div>
+        <div className="sidebar-footer"><button className="sidebar-role-btn" onClick={onExit}>← واجهة الزبون</button></div>
       </aside>
       <main className="admin-main">
-        <header className="admin-header">
-          <h1>{TABS.find((t) => t.key === tab)?.label}</h1>
-        </header>
+        <header className="admin-header"><h1>{TABS.find((t) => t.key === tab)?.label}</h1></header>
         <div className="admin-content">
           {tab === 'config' && <ConfigEditor config={config} onSaved={loadAll} />}
           {tab === 'services' && <ServicesEditor services={services} onChanged={loadAll} />}

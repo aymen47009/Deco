@@ -7,12 +7,7 @@ interface OrderFormProps {
 }
 
 export function OrderForm({ config }: OrderFormProps) {
-  const [form, setForm] = useState<ProjectInput>({
-    name: '',
-    phone: '',
-    workshop_type: '',
-    space_size: '',
-  });
+  const [form, setForm] = useState<ProjectInput>({ name: '', phone: '', workshop_type: '', space_size: '' });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
 
@@ -27,8 +22,7 @@ export function OrderForm({ config }: OrderFormProps) {
       const project = await db.createProject(form);
       setSuccess(project.code);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'فشل إرسال الطلب';
-      alert(msg);
+      alert(err instanceof Error ? err.message : 'فشل إرسال الطلب');
     } finally {
       setLoading(false);
     }
@@ -42,15 +36,8 @@ export function OrderForm({ config }: OrderFormProps) {
           <h2>تم استلام طلبك بنجاح!</h2>
           <p>كود مشروعك هو:</p>
           <div className="order-code">{success}</div>
-          <p className="order-success-note">
-            احتفظ بهذا الكود لتتبع حالة مشروعك. سنتواصل معك قريباً.
-          </p>
-          <button className="btn btn-primary btn-lg" onClick={() => {
-            setSuccess(null);
-            setForm({ name: '', phone: '', workshop_type: '', space_size: '' });
-          }}>
-            طلب جديد
-          </button>
+          <p className="order-success-note">احتفظ بهذا الكود لتتبع حالة مشروعك. سنتواصل معك قريباً.</p>
+          <button className="btn btn-primary btn-lg" onClick={() => { setSuccess(null); setForm({ name: '', phone: '', workshop_type: '', space_size: '' }); }}>طلب جديد</button>
         </div>
       </div>
     );

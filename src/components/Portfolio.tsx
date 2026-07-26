@@ -17,9 +17,7 @@ export function Portfolio({ items }: { items: PortfolioItem[] }) {
         {categories.length > 1 && (
           <div className="portfolio-filters">
             {categories.map((c) => (
-              <button key={c} className={filter === c ? 'active' : ''} onClick={() => setFilter(c)}>
-                {c}
-              </button>
+              <button key={c} className={filter === c ? 'active' : ''} onClick={() => setFilter(c)}>{c}</button>
             ))}
           </div>
         )}
@@ -33,9 +31,7 @@ export function Portfolio({ items }: { items: PortfolioItem[] }) {
                   {item.location && <span className="portfolio-location">📍 {item.location}</span>}
                 </div>
               </div>
-              <div className="portfolio-info">
-                <h3>{item.title}</h3>
-              </div>
+              <div className="portfolio-info"><h3>{item.title}</h3></div>
             </div>
           ))}
         </div>
