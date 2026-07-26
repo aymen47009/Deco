@@ -6,6 +6,11 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import multer from "multer";
 import { v2 as cloudinary } from "cloudinary";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import fs from "node:fs";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 dotenv.config();
 
@@ -255,5 +260,14 @@ app.post("/api/upload/multiple", upload.array("images", 10), async (req, res) =>
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-const PORT = 5050; // fixed port for API server, independent of harness PORT env
-app.listen(PORT, () => console.log(`API server running on port ${PORT}`));
+const distDir = path.resolve(__dirname, "../dist");
+if (fs.existsSync(distDir)) {
+  app.use(express.static(distDir));
+  app.get("*", (req, res, next) => {
+    if (req.path.startsWith("/api")) return next();
+    res.sendFile(path.join(distDir, "index.html"));
+  });
+}
+
+const PORT = process.env.PORT || 5050;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
