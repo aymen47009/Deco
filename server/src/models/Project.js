@@ -1,32 +1,28 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
-const projectSchema = new mongoose.Schema(
+const { Schema } = mongoose;
+
+const projectSchema = new Schema(
   {
-    title: { type: String, required: true, trim: true },
-    customer: { type: String, required: true, trim: true },
-    phone: { type: String, required: true, trim: true },
-    workshopType: { type: String, required: true, trim: true },
-    spaceSize: { type: String, trim: true, default: '' },
-    budget: { type: Number, default: null },
-    description: { type: String, trim: true, default: '' },
-    status: {
-      type: String,
-      enum: ['new', 'in_review', 'approved', 'in_progress', 'review', 'completed', 'cancelled'],
-      default: 'new',
-    },
-    progress: { type: Number, default: 0, min: 0, max: 100 },
-    images: [{ type: String, default: [] }],
-    assignedWorkers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Worker' }],
-    materials: [
-      {
-        material: { type: mongoose.Schema.Types.ObjectId, ref: 'Material' },
-        quantity: { type: Number, default: 1 },
-      },
-    ],
-    preferredDate: { type: Date, default: null },
-    completedAt: { type: Date, default: null },
+    name: { type: String, required: true, trim: true },
+    customerId: { type: String, default: null, index: true },
+    status: { type: String, default: "pending", index: true },
+    description: { type: String, default: "" },
+    budget: { type: Number, default: 0 },
+    startDate: { type: Date, default: null },
+    endDate: { type: Date, default: null },
   },
-  { timestamps: true }
+  { strict: false, timestamps: true }
 );
 
-export const Project = mongoose.model('Project', projectSchema);
+projectSchema.set("toJSON", {
+  virtuals: true,
+  versionKey: false,
+  transform: (_doc, ret) => {
+    ret.id = ret._id;
+    delete ret._id;
+    return ret;
+  },
+});
+
+export const Project = mongoose.model("Project", projectSchema);

@@ -1,130 +1,39 @@
-import { Router } from 'express';
-import multer from 'multer';
-import { v2 as cloudinary } from 'cloudinary';
-import { Project } from '../models/Project.js';
+import { Router } from "express";
+import { Project } from "../models/Project.js";
+import { asyncHandler } from "../middleware/error.js";
 
 const router = Router();
-const upload = multer({ storage: multer.memoryStorage() });
 
-// GET /api/projects
-router.get('/', async (req, res) => {
-  try {
-    const { status } = req.query;
-    const filter = status ? { status } : {};
-    const projects = await Project.find(filter)
-      .populate('assignedWorkers', 'name role status')
-      .sort({ createdAt: -1 });
-    res.json(projects);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+router.get("/", asyncHandler(async (req, res) => {
+  const { status, customerId } = req.query;
+  const filter = {};
+  if (status) filter.status = status;
+  if (customerId) filter.customerId = customerId;
+  const projects = await Project.find(filter).sort({ createdAt: -1 }).lean({ virtuals: true });
+  res.json(projects.map((p) => ({ ...p, id: p._id, _id: undefined })));
+}));
 
-// GET /api/projects/:id
-router.get('/:id', async (req, res) => {
-  try {
-    const project = await Project.findById(req.params.id).populate('assignedWorkers', 'name role status');
-    if (!project) return res.status(404).json({ error: 'Project not found' });
-    res.json(project);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+router.get("/:id", asyncHandler(async (req, res) => {
+  const project = await Project.findById(req.params.id).lean({ virtuals: true });
+  if (!project) return res.status(404).json({ error: "Project not found" });
+  res.json({ ...project, id: project._id, _id: undefined });
+}));
 
-// POST /api/projects
-router.post('/', async (req, res) => {
-  try {
-    const project = new Project(req.body);
-    await project.save();
-    res.status(201).json(project);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
+router.post("/", asyncHandler(async (req, res) => {
+  const project = await Project.create(req.body);
+  res.status(201).json(project.toJSON());
+}));
 
-// PUT /api/projects/:id
-router.put('/:id', async (req, res) => {
-  try {
-    const project = await Project.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    }).populate('assignedWorkers', 'name role status');
-    if (!project) return res.status(404).json({ error: 'Project not found' });
-    res.json(project);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
+router.put("/:id", asyncHandler(async (req, res) => {
+  const updated = await Project.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+  if (!updated) return res.status(404).json({ error: "Project not found" });
+  res.json(updated.toJSON());
+}));
 
-// PATCH /api/projects/:id/status
-router.patch('/:id/status', async (req, res) => {
-  try {
-    const { status } = req.body;
-    const project = await Project.findByIdAndUpdate(
-      req.params.id,
-      { status },
-      { new: true, runValidators: true }
-    );
-    if (!project) return res.status(404).json({ error: 'Project not found' });
-    res.json(project);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
-
-// PATCH /api/projects/:id/progress
-router.patch('/:id/progress', async (req, res) => {
-  try {
-    const { progress } = req.body;
-    const project = await Project.findByIdAndUpdate(
-      req.params.id,
-      { progress },
-      { new: true, runValidators: true }
-    );
-    if (!project) return res.status(404).json({ error: 'Project not found' });
-    res.json(project);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
-
-// POST /api/projects/:id/upload - upload images to Cloudinary
-router.post('/:id/upload', upload.array('images', 10), async (req, res) => {
-  try {
-    const project = await Project.findById(req.params.id);
-    if (!project) return res.status(404).json({ error: 'Project not found' });
-
-    const uploadPromises = (req.files || []).map((file) => {
-      return new Promise((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream(
-          { folder: 'deco-workshops/projects' },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result.secure_url);
-          }
-        );
-        stream.end(file.buffer);
-      });
-    });
-
-    const imageUrls = await Promise.all(uploadPromises);
-    project.images.push(...imageUrls);
-    await project.save();
-    res.json(project);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// DELETE /api/projects/:id
-router.delete('/:id', async (req, res) => {
-  try {
-    const project = await Project.findByIdAndDelete(req.params.id);
-    if (!project) return res.status(404).json({ error: 'Project not found' });
-    res.json({ message: 'Project deleted' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+router.delete("/:id", asyncHandler(async (req, res) => {
+  const deleted = await Project.findByIdAndDelete(req.params.id);
+  if (!deleted) return res.status(404).json({ error: "Project not found" });
+  res.json({ success: true, id: req.params.id });
+}));
 
 export default router;

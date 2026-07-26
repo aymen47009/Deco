@@ -1,65 +1,72 @@
-import express from 'express';
-import cors from 'cors';
-import mongoose from 'mongoose';
-import dotenv from 'dotenv';
-import { v2 as cloudinary } from 'cloudinary';
-import path from 'path';
-import { fileURLToPath } from 'url';
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+const path = require('path');
+const fs = require('fs');
 
-import projectRoutes from './src/routes/projects.js';
-import workerRoutes from './src/routes/workers.js';
-import customerRoutes from './src/routes/customers.js';
-import materialRoutes from './src/routes/materials.js';
-
-dotenv.config();
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const { router: projectsRouter } = require('./routes/projects');
+const { router: workersRouter } = require('./routes/workers');
+const customersRouter = require('./routes/customers');
+const { router: materialsRouter } = require('./routes/materials');
+const { upload } = require('./middleware/upload');
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 5000;
+const MONGODB_URI = process.env.MONGODB_URI;
+
+if (!MONGODB_URI) {
+  console.warn('[warn] MONGODB_URI not set — server will start without DB persistence.');
+}
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Cloudinary config
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
-
-// API routes
-app.use('/api/projects', projectRoutes);
-app.use('/api/workers', workerRoutes);
-app.use('/api/customers', customerRoutes);
-app.use('/api/materials', materialRoutes);
-
-// Health check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  const dbState = mongoose.connection.readyState;
+  res.json({ status: 'ok', db: dbState === 1 ? 'connected' : 'disconnected' });
 });
 
-// Serve static React build in production
-const distPath = path.join(__dirname, '../dist');
-app.use(express.static(distPath));
-
-// Catch-all: serve React app for non-API routes
-app.get('*', (req, res) => {
-  res.sendFile(path.join(distPath, 'index.html'));
+app.post('/api/upload', upload.array('images', 8), (req, res) => {
+  try {
+    const files = req.files || [];
+    const images = files.map((f) => ({ url: f.path, publicId: f.filename }));
+    res.json({ images });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-// Connect to MongoDB and start server
-mongoose
-  .connect(process.env.MONGODB_URI)
-  .then(() => {
-    console.log('Connected to MongoDB Atlas');
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-    });
-  })
-  .catch((err) => {
-    console.error('MongoDB connection error:', err.message);
-    process.exit(1);
+app.use('/api/projects', projectsRouter);
+app.use('/api/workers', workersRouter);
+app.use('/api/customers', customersRouter);
+app.use('/api/materials', materialsRouter);
+
+const clientDist = path.join(__dirname, '..', 'dist');
+if (fs.existsSync(clientDist)) {
+  app.use(express.static(clientDist));
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(clientDist, 'index.html'));
   });
+}
+
+app.use((err, req, res, next) => {
+  console.error('[error]', err.message);
+  res.status(500).json({ error: err.message });
+});
+
+async function start() {
+  if (MONGODB_URI) {
+    try {
+      await mongoose.connect(MONGODB_URI);
+      console.log('[db] Connected to MongoDB Atlas');
+    } catch (err) {
+      console.error('[db] Connection failed:', err.message);
+    }
+  }
+  app.listen(PORT, () => {
+    console.log(`[server] Deco Workshops API running on port ${PORT}`);
+  });
+}
+
+start();
