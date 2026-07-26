@@ -1,8 +1,5 @@
 import { Link } from "react-router-dom";
-import {
-  Hammer, Camera, Search, Sparkles, Phone, ShieldCheck, Clock, Award, ArrowLeft,
-  CheckCircle2, Ruler, Users,
-} from "lucide-react";
+import { Hammer, Camera, Search, Sparkles, Phone, ShieldCheck, Clock, Award, ArrowLeft, CircleCheck as CheckCircle2, Ruler, Users } from "lucide-react";
 
 const HERO_IMG = "https://images.pexels.com/photos/7567307/pexels-photo-7567307.jpeg?auto=compress&cs=tinysrgb&w=1400";
 const WORK_IMG_1 = "https://images.pexels.com/photos/6492383/pexels-photo-6492383.jpeg?auto=compress&cs=tinysrgb&w=800";
