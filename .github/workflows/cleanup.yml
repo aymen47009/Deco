@@ -1,0 +1,45 @@
+name: Cleanup Dead Code and Fix App.tsx
+
+on:
+  workflow_dispatch: # يتيح لك تشغيل الأداء بنقرة زر يدوياً
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Delete Dead Directories and Files
+        run: |
+          # حذف المجلدات القديمة المسببة للأخطاء
+          rm -rf src/pages src/context src/api src/components/ui
+
+          # حذف الملفات الميتة من src/lib/
+          rm -f src/lib/api.ts src/lib/auth.tsx src/lib/pricing.ts src/lib/router.ts src/lib/storage.ts src/lib/toast.tsx
+
+          # حذف المكونات القديمة من src/components/
+          rm -f src/components/AdminDashboard.tsx src/components/CustomerForm.tsx src/components/CustomerPortal.tsx \
+               src/components/CustomersView.tsx src/components/Header.tsx src/components/ImageUploader.tsx \
+               src/components/Lightbox.tsx src/components/LoginScreen.tsx src/components/MaterialsInventory.tsx \
+               src/components/Modal.tsx src/components/ProjectCard.tsx src/components/ProjectForm.tsx \
+               src/components/ProjectsView.tsx src/components/Spinner.tsx src/components/States.tsx \
+               src/components/WorkerDashboard.tsx
+
+          # حذف إعدادات غير مستخدمة من الجذر
+          rm -f src/types.ts postcss.config.js tailwind.config.js tsconfig.tsbuildinfo vite.config.ts.timestamp-*
+
+      - name: Update App.tsx Header
+        run: |
+          # استبدال السطرين الأولين في App.tsx بالكود الصحيح
+          sed -i "1s/.*/import { useState } from 'react'/" src/App.tsx
+          sed -i "2s/.*/import { supabase, type ProjectInsert } from '.\/lib\/supabase'/" src/App.tsx
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "GitHub Action Cleanup"
+          git config --global user.email "action@github.com"
+          git add -A
+          git commit -m "Clean up dead legacy code and fix App.tsx imports" || exit 0
+          git push
+
