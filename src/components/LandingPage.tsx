@@ -90,7 +90,6 @@ export function LandingPage() {
 
   return (
     <div className="landing">
-      {/* Navigation */}
       <nav className="nav-bar">
         <div className="container nav-inner">
           <div className="nav-brand">
@@ -110,7 +109,6 @@ export function LandingPage() {
         </div>
       </nav>
 
-      {/* Hero */}
       <section className="hero">
         <div className="hero-bg" style={heroBg ? { backgroundImage: `url(${heroBg})` } : undefined} />
         <div className="hero-overlay" />
@@ -128,7 +126,6 @@ export function LandingPage() {
         <div className="hero-scroll">↓</div>
       </section>
 
-      {/* Services */}
       <section className="section services-section" id="services">
         <div className="container">
           <div className="section-head">
@@ -150,7 +147,6 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* Gallery */}
       <section className="section gallery-section" id="gallery">
         <div className="container">
           <div className="section-head">
@@ -178,7 +174,6 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* Order Form */}
       <section className="section order-section" id="order" ref={orderRef}>
         <div className="container">
           <div className="order-card">
@@ -231,7 +226,6 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="footer">
         <div className="container footer-inner">
           <div className="footer-brand">
@@ -243,13 +237,11 @@ export function LandingPage() {
         </div>
       </footer>
 
-      {/* Floating CTA */}
       <button className={`floating-cta ${cfg.ctaPulse ? 'cta-glow' : ''}`} onClick={scrollToOrder}>
         <span className="floating-cta-icon">↑</span>
         <span>{cfg.ctaText}</span>
       </button>
 
-      {/* Lightbox */}
       {lightbox && (
         <div className="lightbox" onClick={() => setLightbox(null)}>
           <img src={lightbox.url} alt={lightbox.title || 'عمل'} />
