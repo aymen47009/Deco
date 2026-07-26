@@ -1,51 +1,53 @@
-import { useEffect, useState } from 'react';
-import { api } from '../lib/api';
-import { Spinner, EmptyState } from './ui';
-import { PROJECT_STATUS_LABELS, WORKER_STATUS_LABELS, type Project, type Worker, type Material } from '../types';
+import { useState } from 'react';
+import { ProjectsList } from './ProjectsList';
+import { WorkersList } from './WorkersList';
+import { MaterialsList } from './MaterialsList';
+import { ToastContainer } from './ui';
 
-export function AdminDashboard() {
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [workers, setWorkers] = useState<Worker[]>([]);
-  const [materials, setMaterials] = useState<Material[]>([]);
-  const [loading, setLoading] = useState(true);
+type AdminTab = 'projects' | 'workers' | 'materials';
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const [p, w, m] = await Promise.all([api.getProjects(), api.getWorkers(), api.getMaterials()]);
-        setProjects(p); setWorkers(w); setMaterials(m);
-      } catch { /* ignore */ }
-      finally { setLoading(false); }
-    }
-    load();
-  }, []);
+const TABS: { key: AdminTab; label: string }[] = [
+  { key: 'projects', label: 'المشاريع' },
+  { key: 'workers', label: 'العمال' },
+  { key: 'materials', label: 'المواد' },
+];
 
-  if (loading) return <Spinner label="جاري التحميل..." />;
+interface Props {
+  onExit: () => void;
+}
+
+export function AdminDashboard({ onExit }: Props) {
+  const [tab, setTab] = useState<AdminTab>('projects');
 
   return (
-    <div className="admin-dashboard">
-      <div className="stats-grid">
-        <div className="stat-card stat-blue"><div className="stat-icon">📋</div><div className="stat-info"><span className="stat-value">{projects.length}</span><span className="stat-label">إجمالي المشاريع</span></div></div>
-        <div className="stat-card stat-green"><div className="stat-icon">🔧</div><div className="stat-info"><span className="stat-value">{projects.filter((p) => p.status === 'in_progress').length}</span><span className="stat-label">قيد التنفيذ</span></div></div>
-        <div className="stat-card stat-teal"><div className="stat-icon">✅</div><div className="stat-info"><span className="stat-value">{projects.filter((p) => p.status === 'completed').length}</span><span className="stat-label">مكتملة</span></div></div>
-        <div className="stat-card stat-amber"><div className="stat-icon">👷</div><div className="stat-info"><span className="stat-value">{workers.filter((w) => w.status === 'available').length}</span><span className="stat-label">عمال متاحون</span></div></div>
-        <div className="stat-card stat-red"><div className="stat-icon">⚠</div><div className="stat-info"><span className="stat-value">{materials.filter((m) => m.lowStock).length}</span><span className="stat-label">مخزون منخفض</span></div></div>
-      </div>
-      <div className="card">
-        <h3>أحدث المشاريع</h3>
-        {projects.length === 0 ? <EmptyState title="لا توجد مشاريع" /> : (
-          <div className="table-wrap">
-            <table className="data-table">
-              <thead><tr><th>الكود</th><th>العنوان</th><th>العميل</th><th>الحالة</th></tr></thead>
-              <tbody>
-                {projects.slice(0, 10).map((p) => (
-                  <tr key={p._id}><td className="mono">{p.code}</td><td>{p.title}</td><td>{p.customer.name}</td><td><span className={`pill pill-${p.status}`}>{PROJECT_STATUS_LABELS[p.status]}</span></td></tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+    <div className="admin-layout">
+      <aside className="admin-sidebar">
+        <div className="sidebar-brand">
+          <span className="sidebar-logo">DP</span>
+          <span className="sidebar-name">ديكو ورشات</span>
+        </div>
+        <nav className="sidebar-nav">
+          {TABS.map((t) => (
+            <button key={t.key} className={tab === t.key ? 'active' : ''} onClick={() => setTab(t.key)}>
+              {t.label}
+            </button>
+          ))}
+        </nav>
+        <div className="sidebar-footer">
+          <button className="sidebar-role-btn" onClick={onExit}>← واجهة الزبون</button>
+        </div>
+      </aside>
+      <main className="admin-main">
+        <header className="admin-header">
+          <h1>{TABS.find((t) => t.key === tab)?.label}</h1>
+        </header>
+        <div className="admin-content">
+          {tab === 'projects' && <ProjectsList />}
+          {tab === 'workers' && <WorkersList />}
+          {tab === 'materials' && <MaterialsList />}
+        </div>
+      </main>
+      <ToastContainer />
     </div>
   );
 }

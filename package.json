@@ -1,15 +1,15 @@
 {
-  "name": "deco-panels",
+  "name": "deco-workshops",
   "private": true,
   "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "npm install && tsc -b && vite build && cd server && npm install",
+    "start": "cd server && npm start",
     "preview": "vite preview"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.45.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
