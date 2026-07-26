@@ -17,9 +17,31 @@ export interface Customer {
   createdAt?: string;
 }
 
-export type ProjectType = "decor" | "placo" | "pmma" | "other";
+export type WorkType =
+  | "placo"
+  | "pvc"
+  | "separation"
+  | "marble"
+  | "wood";
+
 export type ProjectStatus = "pending" | "in_progress" | "validated" | "paid";
 export type ImageCategory = "request" | "progress" | "completion";
+
+export const WORK_TYPE_LABELS: Record<WorkType, string> = {
+  placo: "بلاكو بلاتر",
+  pvc: "بي في سي السقف",
+  separation: "سيباراسيون",
+  marble: "بديل الرخام",
+  wood: "بديل الخشب",
+};
+
+export const WORK_TYPE_ICONS: Record<WorkType, string> = {
+  placo: "🧱",
+  pvc: "⚪",
+  separation: "🪨",
+  marble: "◈",
+  wood: "🪵",
+};
 
 export interface ProjectImage {
   _id?: string;
@@ -44,9 +66,10 @@ export interface Project {
   workerId?: string;
   worker?: User;
   status: ProjectStatus;
-  type: ProjectType;
+  workTypes: WorkType[];
   city: string;
-  area: number;
+  area: string;
+  trackingCode: string;
   images: ProjectImage[];
   financials: Financials;
   validatedAt?: string;
@@ -54,13 +77,6 @@ export interface Project {
   createdAt?: string;
   updatedAt?: string;
 }
-
-export const PROJECT_TYPE_LABELS: Record<ProjectType, string> = {
-  decor: "ديكور",
-  placo: "بلاكو بلاتر",
-  pmma: "PMMA",
-  other: "أخرى",
-};
 
 export const PROJECT_STATUS_LABELS: Record<ProjectStatus, string> = {
   pending: "بانتظار المراجعة",
