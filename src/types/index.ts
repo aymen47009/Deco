@@ -1,71 +1,168 @@
-export interface SiteConfig {
-  id: string;
-  brand_name: string;
-  brand_logo: string;
-  tagline: string;
-  hero_image: string;
+export type ProjectStatus =
+  | 'new'
+  | 'in_review'
+  | 'approved'
+  | 'in_progress'
+  | 'review'
+  | 'completed'
+  | 'cancelled';
+
+export type WorkerRole =
+  | 'placo'
+  | 'wood'
+  | 'marble'
+  | 'pvc'
+  | 'demontable'
+  | 'designer'
+  | 'manager';
+
+export type WorkerStatus = 'available' | 'busy' | 'on_leave' | 'inactive';
+
+export type MaterialCategory =
+  | 'placo'
+  | 'wood'
+  | 'marble'
+  | 'pvc'
+  | 'demontable'
+  | 'tools'
+  | 'other';
+
+export interface Worker {
+  _id: string;
+  name: string;
+  phone: string;
+  role: WorkerRole;
+  status: WorkerStatus;
+  avatar: string;
+  assignedProjects: Project[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface WorkerInput {
+  name: string;
+  phone: string;
+  role: WorkerRole;
+  status?: WorkerStatus;
+  avatar?: string;
+}
+
+export interface Customer {
+  _id: string;
+  name: string;
   phone: string;
   email: string;
   address: string;
-  instagram: string;
-  facebook: string;
-  whatsapp: string;
-  about_text: string;
-  order_intro: string;
+  notes: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface Service {
-  id: string;
-  icon: string;
-  title: string;
-  description: string;
-  sort_order: number;
-}
-
-export interface PortfolioItem {
-  id: string;
-  image: string;
-  title: string;
-  category: string;
-  location: string;
-  sort_order: number;
-}
-
-export interface Testimonial {
-  id: string;
-  name: string;
-  role: string;
-  text: string;
-  rating: number;
-  avatar: string;
-  sort_order: number;
-}
-
-export interface Project {
-  id: string;
-  code: string;
-  name: string;
-  phone: string;
-  email: string | null;
-  workshop_type: string;
-  space_size: string | null;
-  budget: number | null;
-  description: string;
-  status: string;
-  preferred_date: string | null;
-  created_at: string;
-}
-
-export interface ProjectInput {
+export interface CustomerInput {
   name: string;
   phone: string;
   email?: string;
-  workshop_type: string;
-  space_size?: string;
+  address?: string;
+  notes?: string;
+}
+
+export interface Material {
+  _id: string;
+  name: string;
+  category: MaterialCategory;
+  unit: string;
+  stock: number;
+  lowStockThreshold: number;
+  pricePerUnit: number;
+  supplier: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MaterialInput {
+  name: string;
+  category: MaterialCategory;
+  unit?: string;
+  stock?: number;
+  lowStockThreshold?: number;
+  pricePerUnit?: number;
+  supplier?: string;
+}
+
+export interface Project {
+  _id: string;
+  title: string;
+  customer: string;
+  phone: string;
+  workshopType: string;
+  spaceSize: string;
+  budget: number | null;
+  description: string;
+  status: ProjectStatus;
+  progress: number;
+  images: string[];
+  assignedWorkers: Worker[];
+  preferredDate: string | null;
+  completedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ProjectInput {
+  title: string;
+  customer: string;
+  phone: string;
+  workshopType: string;
+  spaceSize?: string;
   budget?: number;
   description?: string;
-  preferred_date?: string;
+  preferredDate?: string;
 }
+
+export const PROJECT_STATUS_LABELS: Record<ProjectStatus, string> = {
+  new: 'جديد',
+  in_review: 'قيد المراجعة',
+  approved: 'مقبول',
+  in_progress: 'قيد التنفيذ',
+  review: 'للمراجعة',
+  completed: 'مكتمل',
+  cancelled: 'ملغي',
+};
+
+export const PROJECT_STATUSES = Object.keys(PROJECT_STATUS_LABELS) as ProjectStatus[];
+
+export const WORKER_ROLE_LABELS: Record<WorkerRole, string> = {
+  placo: 'بلاكو بلاتر',
+  wood: 'بديل الخشب',
+  marble: 'بديل الرخام',
+  pvc: 'ألواح PVC',
+  demontable: 'ديمونطابل',
+  designer: 'مصمم',
+  manager: 'مدير',
+};
+
+export const WORKER_ROLES = Object.keys(WORKER_ROLE_LABELS) as WorkerRole[];
+
+export const WORKER_STATUS_LABELS: Record<WorkerStatus, string> = {
+  available: 'متاح',
+  busy: 'مشغول',
+  on_leave: 'في إجازة',
+  inactive: 'غير نشط',
+};
+
+export const WORKER_STATUSES = Object.keys(WORKER_STATUS_LABELS) as WorkerStatus[];
+
+export const MATERIAL_CATEGORY_LABELS: Record<MaterialCategory, string> = {
+  placo: 'بلاكو',
+  wood: 'خشب',
+  marble: 'رخام',
+  pvc: 'PVC',
+  demontable: 'ديمونطابل',
+  tools: 'أدوات',
+  other: 'أخرى',
+};
+
+export const MATERIAL_CATEGORIES = Object.keys(MATERIAL_CATEGORY_LABELS) as MaterialCategory[];
 
 export const WORKSHOP_TYPES = [
   'بلاكو بلاتر',
@@ -82,31 +179,3 @@ export const SPACE_SIZES = [
   '60 م² - 100 م²',
   'أكثر من 100 م²',
 ];
-
-export const PROJECT_STATUS_LABELS: Record<string, string> = {
-  new: 'جديد',
-  in_review: 'قيد المراجعة',
-  approved: 'مقبول',
-  in_progress: 'قيد التنفيذ',
-  review: 'للمراجعة',
-  completed: 'مكتمل',
-  cancelled: 'ملغي',
-};
-
-export const PROJECT_STATUSES = Object.keys(PROJECT_STATUS_LABELS);
-
-export const DEFAULT_CONFIG: SiteConfig = {
-  id: '',
-  brand_name: 'ديكو بانيلز',
-  brand_logo: 'DP',
-  tagline: 'ألواح جدارية احترافية — بلاكو بلاتر، بديل الخشب، بديل الرخام، PVC، ديمونطابل',
-  hero_image: 'https://images.pexels.com/photos/6585758/pexels-photo-6585758.jpeg?auto=compress&cs=tinysrgb&w=1600',
-  phone: '0770000000',
-  email: 'info@decopanels.com',
-  address: 'بغداد، العراق',
-  instagram: '#',
-  facebook: '#',
-  whatsapp: '#',
-  about_text: 'نقدم حلول الألواح الجدارية الاحترافية لجميع المساحات. لدينا خبرة في تركيب وتصميم البلاكو بلاتر، بدائل الخشب، بدائل الرخام، ألواح PVC، والديمونطابل. نلتزم بالعمل الاحترافي والتسليم في الوقت المناسب.',
-  order_intro: 'املأ النموذج التالي وسنتواصل معك في أقرب وقت',
-};
