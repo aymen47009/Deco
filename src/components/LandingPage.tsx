@@ -55,6 +55,7 @@ export function LandingPage() {
   }
 
   function scrollToOrder() { orderRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+  function goToAdmin() { window.location.hash = 'admin'; }
 
   if (loading) return <div className="page-loading"><Spinner label="جاري التحميل..." /></div>;
 
@@ -93,7 +94,11 @@ export function LandingPage() {
       <nav className="nav-bar">
         <div className="container nav-inner">
           <div className="nav-brand">
-            {cfg.logo ? <img src={cfg.logo} alt={cfg.brandName} className="nav-logo" /> : <span className="nav-logo-mark">{(cfg.brandName ?? 'D').charAt(0)}</span>}
+            {cfg.logo ? (
+              <img src={cfg.logo} alt={cfg.brandName} className="nav-logo" />
+            ) : (
+              <span className="nav-logo-mark">{(cfg.brandName ?? 'D').charAt(0)}</span>
+            )}
             <span className="nav-brand-name">{cfg.brandName}</span>
           </div>
           <div className="nav-links">
@@ -110,6 +115,7 @@ export function LandingPage() {
         <div className="hero-bg" style={heroBg ? { backgroundImage: `url(${heroBg})` } : undefined} />
         <div className="hero-overlay" />
         <div className="container hero-content">
+          {cfg.logo && <img src={cfg.logo} alt={cfg.brandName} className="hero-logo" />}
           <span className="hero-badge">{cfg.heroBadge}</span>
           <h1 className="hero-title">{cfg.heroTitle}</h1>
           <p className="hero-subtitle">{cfg.heroSubtitle}</p>
@@ -145,14 +151,14 @@ export function LandingPage() {
       </section>
 
       {/* Gallery */}
-      {galleryImages.length > 0 && (
-        <section className="section gallery-section" id="gallery">
-          <div className="container">
-            <div className="section-head">
-              <span className="section-label">أعمالنا</span>
-              <h2 className="section-title">{cfg.galleryTitle}</h2>
-              <p className="section-desc">{cfg.gallerySubtitle}</p>
-            </div>
+      <section className="section gallery-section" id="gallery">
+        <div className="container">
+          <div className="section-head">
+            <span className="section-label">أعمالنا</span>
+            <h2 className="section-title">{cfg.galleryTitle}</h2>
+            <p className="section-desc">{cfg.gallerySubtitle}</p>
+          </div>
+          {galleryImages.length > 0 ? (
             <div className="gallery-grid">
               {galleryImages.map((img, i) => (
                 <div className="gallery-tile" key={img._id} onClick={() => setLightbox(img)} style={{ animationDelay: `${i * 60}ms` }}>
@@ -164,9 +170,13 @@ export function LandingPage() {
                 </div>
               ))}
             </div>
-          </div>
-        </section>
-      )}
+          ) : (
+            <div className="gallery-empty">
+              <p>سيتم عرض معرض الأعمال هنا بمجرد إضافة الصور من لوحة التحكم.</p>
+            </div>
+          )}
+        </div>
+      </section>
 
       {/* Order Form */}
       <section className="section order-section" id="order" ref={orderRef}>
@@ -229,6 +239,7 @@ export function LandingPage() {
             <span className="footer-name">{cfg.brandName}</span>
           </div>
           <p className="footer-text">{cfg.footerText}</p>
+          <button className="footer-admin-link" onClick={goToAdmin}>لوحة التحكم</button>
         </div>
       </footer>
 
