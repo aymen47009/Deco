@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
-import { supabase, type Project, type ProjectInsert } from './lib/supabase'
+import { useState } from 'react'
+import { supabase, type ProjectInsert } from './lib/supabase'
+
 import { OrderForm } from './components/OrderForm'
 import { ProjectsList } from './components/ProjectsList'
 import { Hero } from './components/Hero'
