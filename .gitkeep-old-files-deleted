@@ -1,0 +1,13 @@
+Old MongoDB-era files have been removed from the repository.
+Deleted files:
+- server/ (entire directory with Express/MongoDB backend)
+- src/components/AdminDashboard.tsx
+- src/components/WorkerDashboard.tsx
+- src/components/WorkersList.tsx
+- src/components/MaterialsList.tsx
+- src/components/ProjectsList.tsx
+- src/components/CustomerPortal.tsx
+- src/lib/api.ts
+
+The project now uses Supabase exclusively with no legacy code.
+Build passes cleanly with zero TypeScript errors.
