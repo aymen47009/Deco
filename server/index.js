@@ -52,14 +52,16 @@ const FinancialSchema = new mongoose.Schema(
 );
 const ProjectSchema = new mongoose.Schema(
   {
-    title: { type: String, required: true },
+    title: { type: String, default: "" },
     description: { type: String, default: "" },
     customerId: { type: mongoose.Schema.Types.ObjectId, ref: "Customer" },
     workerId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     status: { type: String, enum: ["pending", "in_progress", "validated", "paid"], default: "pending" },
-    type: { type: String, enum: ["decor", "placo", "pmma", "other"], default: "decor" },
+    workTypes: { type: [String], default: [] },
+    type: { type: String, default: "decor" },
     city: { type: String, default: "" },
-    area: { type: Number, default: 0 },
+    area: { type: String, default: "" },
+    trackingCode: { type: String, unique: true, sparse: true, index: true },
     images: [ImageItemSchema],
     financials: { type: FinancialSchema, default: () => ({}) },
     validatedAt: { type: Date },
@@ -68,6 +70,21 @@ const ProjectSchema = new mongoose.Schema(
   { strict: false, timestamps: true }
 );
 const Project = mongoose.model("Project", ProjectSchema);
+
+function genTrackingCode() {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let code = "DW-";
+  for (let i = 0; i < 6; i += 1) code += chars[Math.floor(Math.random() * chars.length)];
+  return code;
+}
+async function uniqueTrackingCode() {
+  for (let i = 0; i < 10; i += 1) {
+    const code = genTrackingCode();
+    const exists = await Project.findOne({ trackingCode: code });
+    if (!exists) return code;
+  }
+  return "DW-" + Date.now().toString(36).toUpperCase();
+}
 
 function signToken(payload) { return jwt.sign(payload, SECRET, { expiresIn: "7d" }); }
 function authMiddleware(req, res, next) {
@@ -148,14 +165,38 @@ app.get("/api/projects/:id", authMiddleware, async (req, res) => {
 app.post("/api/projects/public-request", async (req, res) => {
   try {
     await ensureDb();
-    const { name, phone, city, title, description, type, area, images } = req.body || {};
-    if (!name || !phone || !title) return res.status(400).json({ error: "Name, phone, title required" });
+    const { name, phone, city, title, description, workTypes, type, area, images } = req.body || {};
+    if (!name || !phone) return res.status(400).json({ error: "Name and phone required" });
     let customer = await Customer.findOne({ phone });
     if (!customer) customer = await Customer.create({ name, phone, city: city || "" });
     else if (city) { customer.city = city; await customer.save(); }
     const imageDocs = (images || []).map((url) => ({ url, category: "request" }));
-    const project = await Project.create({ title, description: description || "", customerId: customer._id, type: type || "decor", city: city || "", area: area || 0, status: "pending", images: imageDocs, financials: { totalCost: 0, workerFee: 0, customerPaid: false, workerPaid: false } });
+    const trackingCode = await uniqueTrackingCode();
+    const project = await Project.create({
+      title: title || "طلب جديد",
+      description: description || "",
+      customerId: customer._id,
+      workTypes: Array.isArray(workTypes) ? workTypes : [],
+      type: type || "decor",
+      city: city || "",
+      area: area || "",
+      trackingCode,
+      status: "pending",
+      images: imageDocs,
+      financials: { totalCost: 0, workerFee: 0, customerPaid: false, workerPaid: false },
+    });
     res.status(201).json(project);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.get("/api/projects/track/:code", async (req, res) => {
+  try {
+    await ensureDb();
+    const project = await Project.findOne({ trackingCode: req.params.code.toUpperCase() })
+      .populate("customerId")
+      .populate("workerId", "-password");
+    if (!project) return res.status(404).json({ error: "Project not found" });
+    res.json(project);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 

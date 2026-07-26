@@ -4,8 +4,9 @@ import { IMAGE_CATEGORY_LABELS } from "../types";
 import { Camera, CircleCheck as CheckCircle2, DollarSign, User as UserIcon, MapPin, Ruler, Hash } from "lucide-react";
 import { Lightbox } from "./Lightbox";
 import {
-  PROJECT_TYPE_LABELS, PROJECT_STATUS_LABELS, STATUS_STYLES,
+  PROJECT_STATUS_LABELS, STATUS_STYLES,
 } from "../types";
+import { WORK_TYPE_LABELS, WORK_TYPE_ICONS } from "../types";
 
 interface ProjectCardProps {
   project: Project;
@@ -55,7 +56,15 @@ export function ProjectCard({ project, onEdit, onValidate, onCustomerPaid, onWor
                 <Hash className="inline h-3 w-3" /> {project._id.slice(-6).toUpperCase()}
               </p>
             </div>
-            <span className="chip bg-gold-100 text-gold-700">{PROJECT_TYPE_LABELS[project.type]}</span>
+            {project.workTypes && project.workTypes.length > 0 ? (
+              project.workTypes.map((t) => (
+                <span key={t} className="chip bg-gold-100 text-gold-700">
+                  <span>{WORK_TYPE_ICONS[t]}</span> {WORK_TYPE_LABELS[t]}
+                </span>
+              ))
+            ) : (
+              <span className="chip bg-brand-100 text-brand-600">{project.type || "غير محدد"}</span>
+            )}
           </div>
 
           <div className="mt-3 flex flex-wrap gap-2 text-xs text-brand-500">

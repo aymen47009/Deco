@@ -39,6 +39,7 @@ export const api = {
     get: (id: string) => req<Project>(`/projects/${id}`),
     publicRequest: (data: Record<string, unknown>) =>
       req<Project>("/projects/public-request", { method: "POST", body: JSON.stringify(data) }),
+    track: (code: string) => req<Project>(`/projects/track/${encodeURIComponent(code)}`),
     assign: (id: string, data: { workerId?: string; totalCost?: number; workerFee?: number }) =>
       req<Project>(`/projects/${id}/assign`, { method: "PATCH", body: JSON.stringify(data) }),
     validate: (id: string) => req<Project>(`/projects/${id}/validate`, { method: "PATCH" }),
