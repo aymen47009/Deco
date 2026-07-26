@@ -10,6 +10,7 @@ import projectRoutes from './src/routes/projects.js';
 import workerRoutes from './src/routes/workers.js';
 import materialRoutes from './src/routes/materials.js';
 import siteConfigRoutes from './src/routes/siteconfig.js';
+import galleryRoutes from './src/routes/gallery.js';
 
 dotenv.config();
 
@@ -33,6 +34,7 @@ app.use('/api/projects', projectRoutes);
 app.use('/api/workers', workerRoutes);
 app.use('/api/materials', materialRoutes);
 app.use('/api/siteconfig', siteConfigRoutes);
+app.use('/api/gallery', galleryRoutes);
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
 

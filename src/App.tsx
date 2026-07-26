@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { CustomerPortal } from './components/CustomerPortal';
+import { LandingPage } from './components/LandingPage';
 import { AdminDashboard } from './components/AdminDashboard';
 
 type View = 'customer' | 'admin';
@@ -17,5 +17,5 @@ export default function App() {
   }, []);
 
   if (view === 'admin') return <AdminDashboard onExit={() => { window.location.hash = ''; setView('customer'); }} />;
-  return <CustomerPortal />;
+  return <LandingPage />;
 }
