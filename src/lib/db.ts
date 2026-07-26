@@ -6,7 +6,6 @@ import type {
 import { DEFAULT_CONFIG } from '../types';
 
 export const db = {
-  // ---- Site Config ----
   async getConfig(): Promise<SiteConfig> {
     const { data, error } = await supabase.from('site_config').select('*').limit(1).maybeSingle();
     if (error) throw error;
@@ -34,7 +33,6 @@ export const db = {
     return data;
   },
 
-  // ---- Services ----
   async getServices(): Promise<Service[]> {
     const { data, error } = await supabase.from('services').select('*').order('sort_order');
     if (error) throw error;
@@ -55,7 +53,6 @@ export const db = {
     if (error) throw error;
   },
 
-  // ---- Portfolio ----
   async getPortfolio(): Promise<PortfolioItem[]> {
     const { data, error } = await supabase.from('portfolio_items').select('*').order('sort_order');
     if (error) throw error;
@@ -76,7 +73,6 @@ export const db = {
     if (error) throw error;
   },
 
-  // ---- Testimonials ----
   async getTestimonials(): Promise<Testimonial[]> {
     const { data, error } = await supabase.from('testimonials').select('*').order('sort_order');
     if (error) throw error;
@@ -97,7 +93,6 @@ export const db = {
     if (error) throw error;
   },
 
-  // ---- Projects ----
   async getProjects(): Promise<Project[]> {
     const { data, error } = await supabase.from('projects').select('*').order('created_at', { ascending: false });
     if (error) throw error;
