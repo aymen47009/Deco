@@ -18,11 +18,7 @@ export function EmptyState({ title, message }: { title: string; message?: string
   );
 }
 
-export function StatusPill({ status, labels }: { status: string; labels: Record<string, string> }) {
-  return <span className={`pill pill-${status}`}>{labels[status] ?? status}</span>;
-}
-
-let toastListeners: ((state: { message: string; type: string } | null) => void)[] = [];
+let toastListeners: ((s: { message: string; type: string } | null) => void)[] = [];
 export function showToast(message: string, type: string = 'info') {
   toastListeners.forEach((l) => l({ message, type }));
 }
@@ -30,12 +26,12 @@ export function showToast(message: string, type: string = 'info') {
 export function ToastContainer() {
   const [toast, setToast] = useState<{ message: string; type: string } | null>(null);
   useEffect(() => {
-    const listener = (state: { message: string; type: string } | null) => {
-      setToast(state);
-      if (state) setTimeout(() => setToast(null), 3500);
+    const l = (s: { message: string; type: string } | null) => {
+      setToast(s);
+      if (s) setTimeout(() => setToast(null), 3500);
     };
-    toastListeners.push(listener);
-    return () => { toastListeners = toastListeners.filter((l) => l !== listener); };
+    toastListeners.push(l);
+    return () => { toastListeners = toastListeners.filter((x) => x !== l); };
   }, []);
   if (!toast) return null;
   return <div className={`toast toast-${toast.type}`}>{toast.message}</div>;
@@ -63,7 +59,7 @@ export function Modal({ open, title, onClose, children, size = 'md' }: ModalProp
   );
 }
 
-interface ConfirmDialogProps {
+interface ConfirmProps {
   open: boolean;
   title: string;
   message: string;
@@ -71,7 +67,7 @@ interface ConfirmDialogProps {
   onConfirm: () => void;
   onCancel: () => void;
 }
-export function ConfirmDialog({ open, title, message, confirmLabel = 'تأكيد', onConfirm, onCancel }: ConfirmDialogProps) {
+export function ConfirmDialog({ open, title, message, confirmLabel = 'تأكيد', onConfirm, onCancel }: ConfirmProps) {
   return (
     <Modal open={open} title={title} onClose={onCancel} size="sm">
       <p className="confirm-message">{message}</p>

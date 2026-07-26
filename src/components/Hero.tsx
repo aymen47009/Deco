@@ -1,19 +1,20 @@
-import { siteConfig } from '../config/site';
+import type { SiteConfig } from '../types';
 
 interface HeroProps {
+  config: SiteConfig;
   onOrder: () => void;
 }
 
-export function Hero({ onOrder }: HeroProps) {
+export function Hero({ config, onOrder }: HeroProps) {
   return (
     <section className="hero" id="hero">
-      <div className="hero-bg" style={{ backgroundImage: `url(${siteConfig.heroImage})` }} />
+      <div className="hero-bg" style={{ backgroundImage: `url(${config.hero_image})` }} />
       <div className="hero-overlay" />
       <div className="hero-content">
-        <span className="hero-badge">{siteConfig.brand.name}</span>
-        <h1>{siteConfig.brand.tagline}</h1>
+        <span className="hero-badge">{config.brand_name}</span>
+        <h1>{config.tagline}</h1>
         <p className="hero-subtitle">
-          تجديد وتشطيب داخلي احترافي — من التصميم إلى التسليم بأعلى جودة وأفضل الأسعار
+          عمل احترافي — تسليم في الوقت المناسب — أسعار مناسبة
         </p>
         <div className="hero-actions">
           <button className="btn btn-primary btn-lg" onClick={onOrder}>
@@ -22,14 +23,6 @@ export function Hero({ onOrder }: HeroProps) {
           <a href="#portfolio" className="btn btn-ghost-light btn-lg">
             معرض أعمالنا
           </a>
-        </div>
-        <div className="hero-stats">
-          {siteConfig.stats.map((s, i) => (
-            <div key={i} className="hero-stat">
-              <span className="hero-stat-value">{s.value}</span>
-              <span className="hero-stat-label">{s.label}</span>
-            </div>
-          ))}
         </div>
       </div>
     </section>

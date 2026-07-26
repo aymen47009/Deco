@@ -1,151 +1,89 @@
-export type ProjectStatus =
-  | 'new'
-  | 'in_review'
-  | 'approved'
-  | 'in_progress'
-  | 'review'
-  | 'completed'
-  | 'cancelled';
-
-export type PropertyType = 'apartment' | 'villa' | 'office' | 'shop' | 'restaurant' | 'other';
-export type WorkType = 'full_renovation' | 'kitchen' | 'bathroom' | 'painting' | 'flooring' | 'ceiling' | 'custom';
-export type WorkerRole = 'carpenter' | 'painter' | 'electrician' | 'plumber' | 'tiler' | 'general' | 'manager';
-export type WorkerStatus = 'available' | 'busy' | 'offline';
-export type MaterialCategory = 'wood' | 'paint' | 'tile' | 'electrical' | 'plumbing' | 'hardware' | 'other';
-
-export interface WorkerRef {
-  _id: string;
-  name: string;
-  role: WorkerRole;
-  status: WorkerStatus;
-}
-
-export interface ProjectMaterial {
-  name: string;
-  quantity: number;
-  unit: string;
-  unitCost: number;
-  totalCost: number;
-}
-
-export interface ProjectImage {
-  url: string;
-  publicId: string;
-}
-
-export interface Customer {
-  _id: string;
-  name: string;
+export interface SiteConfig {
+  id: string;
+  brand_name: string;
+  brand_logo: string;
+  tagline: string;
+  hero_image: string;
   phone: string;
-  email?: string;
-  address?: string;
-  company?: string;
-  notes?: string;
-  projectIds?: string[];
-  createdAt: string;
-  updatedAt: string;
+  email: string;
+  address: string;
+  instagram: string;
+  facebook: string;
+  whatsapp: string;
+  about_text: string;
+  order_intro: string;
+}
+
+export interface Service {
+  id: string;
+  icon: string;
+  title: string;
+  description: string;
+  sort_order: number;
+}
+
+export interface PortfolioItem {
+  id: string;
+  image: string;
+  title: string;
+  category: string;
+  location: string;
+  sort_order: number;
+}
+
+export interface Testimonial {
+  id: string;
+  name: string;
+  role: string;
+  text: string;
+  rating: number;
+  avatar: string;
+  sort_order: number;
 }
 
 export interface Project {
-  _id: string;
+  id: string;
   code: string;
-  title: string;
+  name: string;
+  phone: string;
+  email: string | null;
+  workshop_type: string;
+  space_size: string | null;
+  budget: number | null;
   description: string;
-  customer: {
-    name: string;
-    phone: string;
-    email?: string;
-    address?: string;
-  };
-  propertyType: PropertyType;
-  workType: WorkType;
-  budget: number;
-  status: ProjectStatus;
-  assignedWorkers: WorkerRef[];
-  materials: ProjectMaterial[];
-  images: ProjectImage[];
-  startDate?: string;
-  expectedEndDate?: string;
-  actualEndDate?: string;
-  progress: number;
-  notes: string;
-  createdAt: string;
-  updatedAt: string;
+  status: string;
+  preferred_date: string | null;
+  created_at: string;
 }
 
 export interface ProjectInput {
-  code?: string;
-  title: string;
-  description?: string;
-  customer: {
-    name: string;
-    phone: string;
-    email?: string;
-    address?: string;
-  };
-  propertyType?: PropertyType;
-  workType?: WorkType;
-  budget?: number;
-  status?: ProjectStatus;
-  materials?: ProjectMaterial[];
-  images?: ProjectImage[];
-  startDate?: string;
-  expectedEndDate?: string;
-  notes?: string;
-}
-
-export interface Worker {
-  _id: string;
   name: string;
   phone: string;
   email?: string;
-  role: WorkerRole;
-  skills: string[];
-  status: WorkerStatus;
-  assignedProjects: Array<{ _id: string; code: string; title: string; status: ProjectStatus }>;
-  dailyRate: number;
-  avatar?: string;
-  createdAt: string;
-  updatedAt: string;
+  workshop_type: string;
+  space_size?: string;
+  budget?: number;
+  description?: string;
+  preferred_date?: string;
 }
 
-export interface WorkerInput {
-  name: string;
-  phone?: string;
-  email?: string;
-  role?: WorkerRole;
-  skills?: string[];
-  status?: WorkerStatus;
-  dailyRate?: number;
-  avatar?: string;
-}
+export const WORKSHOP_TYPES = [
+  'بلاكو بلاتر',
+  'بديل الخشب',
+  'بديل الرخام',
+  'ألواح PVC',
+  'ديمونطابل',
+  'أخرى',
+];
 
-export interface Material {
-  _id: string;
-  name: string;
-  category: MaterialCategory;
-  unit: string;
-  stock: number;
-  minStock: number;
-  unitCost: number;
-  supplier: string;
-  lastRestocked?: string;
-  lowStock: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
+export const SPACE_SIZES = [
+  '10 م² - 30 م²',
+  '30 م² - 60 م²',
+  '60 م² - 100 م²',
+  'أكثر من 100 م²',
+];
 
-export interface MaterialInput {
-  name: string;
-  category?: MaterialCategory;
-  unit?: string;
-  stock?: number;
-  minStock?: number;
-  unitCost?: number;
-  supplier?: string;
-}
-
-export const PROJECT_STATUS_LABELS: Record<ProjectStatus, string> = {
+export const PROJECT_STATUS_LABELS: Record<string, string> = {
   new: 'جديد',
   in_review: 'قيد المراجعة',
   approved: 'مقبول',
@@ -155,33 +93,20 @@ export const PROJECT_STATUS_LABELS: Record<ProjectStatus, string> = {
   cancelled: 'ملغي',
 };
 
-export const WORKER_ROLE_LABELS: Record<WorkerRole, string> = {
-  carpenter: 'نجار',
-  painter: 'دهان',
-  electrician: 'كهربائي',
-  plumber: 'سباك',
-  tiler: 'بلاط',
-  general: 'عامل عام',
-  manager: 'مدير',
-};
+export const PROJECT_STATUSES = Object.keys(PROJECT_STATUS_LABELS);
 
-export const WORKER_STATUS_LABELS: Record<WorkerStatus, string> = {
-  available: 'متاح',
-  busy: 'مشغول',
-  offline: 'غير متصل',
+export const DEFAULT_CONFIG: SiteConfig = {
+  id: '',
+  brand_name: 'ديكو بانيلز',
+  brand_logo: 'DP',
+  tagline: 'ألواح جدارية احترافية — بلاكو بلاتر، بديل الخشب، بديل الرخام، PVC، ديمونطابل',
+  hero_image: 'https://images.pexels.com/photos/6585758/pexels-photo-6585758.jpeg?auto=compress&cs=tinysrgb&w=1600',
+  phone: '0770000000',
+  email: 'info@decopanels.com',
+  address: 'بغداد، العراق',
+  instagram: '#',
+  facebook: '#',
+  whatsapp: '#',
+  about_text: 'نقدم حلول الألواح الجدارية الاحترافية لجميع المساحات. لدينا خبرة في تركيب وتصميم البلاكو بلاتر، بدائل الخشب، بدائل الرخام، ألواح PVC، والديمونطابل. نلتزم بالعمل الاحترافي والتسليم في الوقت المناسب.',
+  order_intro: 'املأ النموذج التالي وسنتواصل معك في أقرب وقت',
 };
-
-export const MATERIAL_CATEGORY_LABELS: Record<MaterialCategory, string> = {
-  wood: 'أخشاب',
-  paint: 'دهانات',
-  tile: 'بلاط',
-  electrical: 'كهرباء',
-  plumbing: 'سباكة',
-  hardware: 'أدوات',
-  other: 'أخرى',
-};
-
-export const PROJECT_STATUSES = Object.keys(PROJECT_STATUS_LABELS) as ProjectStatus[];
-export const WORKER_ROLES = Object.keys(WORKER_ROLE_LABELS) as WorkerRole[];
-export const WORKER_STATUSES = Object.keys(WORKER_STATUS_LABELS) as WorkerStatus[];
-export const MATERIAL_CATEGORIES = Object.keys(MATERIAL_CATEGORY_LABELS) as MaterialCategory[];

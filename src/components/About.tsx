@@ -1,34 +1,25 @@
-import { siteConfig } from '../config/site';
+import type { SiteConfig } from '../types';
 
-export function About() {
+export function About({ config }: { config: SiteConfig }) {
   return (
     <section className="about-section" id="about">
       <div className="container">
         <div className="about-grid">
           <div className="about-content">
             <span className="section-tag">من نحن</span>
-            <h2>{siteConfig.brand.name}</h2>
-            <p>
-              نحن شركة متخصصة في تجديد وتشطيب المساحات الداخلية والخارجية. لدينا فريق من
-              العمال المحترفين في جميع التخصصات — نجارة، دهانات، كهرباء، سباكة، بلاط، وأكثر.
-              نلتزم بأعلى معايير الجودة والوقت والسعر المناسب.
-            </p>
+            <h2>{config.brand_name}</h2>
+            <p>{config.about_text}</p>
             <ul className="about-features">
-              <li>✓ فريق عمل محترف وذو خبرة</li>
+              <li>✓ عمل احترافي</li>
+              <li>✓ تسليم في الوقت المناسب</li>
+              <li>✓ أسعار مناسبة</li>
               <li>✓ مواد عالية الجودة</li>
-              <li>✓ التزام كامل بالمواعيد</li>
-              <li>✓ أسعار تنافسية ومناسبة</li>
               <li>✓ تتبع مباشر لمشروعك</li>
-              <li>✓ ضمان على العمل</li>
             </ul>
             <div className="about-contact">
-              <a href={`tel:${siteConfig.brand.phone}`} className="about-contact-item">
-                📞 {siteConfig.brand.phone}
-              </a>
-              <a href={`mailto:${siteConfig.brand.email}`} className="about-contact-item">
-                ✉ {siteConfig.brand.email}
-              </a>
-              <span className="about-contact-item">📍 {siteConfig.brand.address}</span>
+              <a href={`tel:${config.phone}`} className="about-contact-item">📞 {config.phone}</a>
+              <a href={`mailto:${config.email}`} className="about-contact-item">✉ {config.email}</a>
+              <span className="about-contact-item">📍 {config.address}</span>
             </div>
           </div>
           <div className="about-image">
