@@ -27,6 +27,48 @@ export type MaterialCategory =
   | 'tools'
   | 'other';
 
+export interface SiteConfig {
+  _id: string;
+  logo: string;
+  brandName: string;
+  heroTitle: string;
+  heroSubtitle: string;
+  heroTagline: string;
+  heroBadge: string;
+  heroImage: string;
+  sectionTitle: string;
+  sectionSubtitle: string;
+  ctaText: string;
+  ctaPulse: boolean;
+  footerText: string;
+  phone: string;
+  whatsapp: string;
+  instagram: string;
+  facebook: string;
+  galleryImages: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SiteConfigInput {
+  logo?: string;
+  brandName?: string;
+  heroTitle?: string;
+  heroSubtitle?: string;
+  heroTagline?: string;
+  heroBadge?: string;
+  heroImage?: string;
+  sectionTitle?: string;
+  sectionSubtitle?: string;
+  ctaText?: string;
+  ctaPulse?: boolean;
+  footerText?: string;
+  phone?: string;
+  whatsapp?: string;
+  instagram?: string;
+  facebook?: string;
+}
+
 export interface Worker {
   _id: string;
   name: string;
@@ -179,3 +221,22 @@ export const SPACE_SIZES = [
   '60 م² - 100 م²',
   'أكثر من 100 م²',
 ];
+
+export const DEFAULT_SITE_CONFIG: SiteConfigInput = {
+  logo: '',
+  brandName: 'ديكو ورشات',
+  heroTitle: 'ألواح جدارية احترافية',
+  heroSubtitle: 'بلاكو بلاتر، بديل الخشب، بديل الرخام، PVC، ديمونطابل',
+  heroTagline: 'عمل احترافي — تسليم في الوقت — أسعار مناسبة',
+  heroBadge: 'ديكو ورشات',
+  heroImage: '',
+  sectionTitle: 'نموذج طلب',
+  sectionSubtitle: 'املأ النموذج وسنتواصل معك في أقرب وقت',
+  ctaText: 'اطلب الآن',
+  ctaPulse: true,
+  footerText: '© ديكو ورشات — جميع الحقوق محفوظة',
+  phone: '',
+  whatsapp: '',
+  instagram: '',
+  facebook: '',
+};
