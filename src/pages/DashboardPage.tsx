@@ -418,44 +418,52 @@ function ContentManager({
 
       {/* Work type icons */}
       <div className="card p-6">
-        <h3 className="mb-4 flex items-center gap-2 text-base font-bold text-brand-900">
+        <h3 className="mb-1 flex items-center gap-2 text-base font-bold text-brand-900">
           <SettingsIcon className="h-5 w-5" /> أيقونات أنواع العمل
         </h3>
+        <p className="mb-4 text-xs text-brand-500">أدخل إيموجي/رمز قصير، أو ارفع صورة لوجو (PNG خلفها شفاف أفضل).</p>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {WORK_TYPES.map((t) => (
-            <div key={t} className="flex items-center gap-3 rounded-xl bg-brand-50 p-3">
-              <input
-                className="h-12 w-12 rounded-lg border border-brand-200 bg-white text-center text-2xl outline-none focus:border-emerald-500"
-                value={draft.workTypeIcons[t] || ""}
-                onChange={(e) => setDraft((d) => ({ ...d, workTypeIcons: { ...d.workTypeIcons, [t]: e.target.value } }))}
-                maxLength={2}
-              />
-              <div>
-                <p className="text-sm font-semibold text-brand-900">{WORK_TYPE_LABELS[t]}</p>
-                <p className="text-xs text-brand-500">أدخل إيموجي أو رمز</p>
-              </div>
-            </div>
+            <IconEditor
+              key={t}
+              value={draft.workTypeIcons[t] || ""}
+              label={WORK_TYPE_LABELS[t]}
+              onChange={(v) => setDraft((d) => ({ ...d, workTypeIcons: { ...d.workTypeIcons, [t]: v } }))}
+              onUpload={async (file) => {
+                try { const r = await api.upload(file); setDraft((d) => ({ ...d, workTypeIcons: { ...d.workTypeIcons, [t]: r.url } })); }
+                catch { toast("تعذّر رفع الصورة", "error"); }
+              }}
+            />
           ))}
         </div>
       </div>
 
       {/* Service icons */}
       <div className="card p-6">
-        <h3 className="mb-4 flex items-center gap-2 text-base font-bold text-brand-900">
+        <h3 className="mb-1 flex items-center gap-2 text-base font-bold text-brand-900">
           <SettingsIcon className="h-5 w-5" /> أيقونات وعناوين الخدمات
         </h3>
+        <p className="mb-4 text-xs text-brand-500">يمكن استخدام إيموجي أو رفع صورة لوجو لكل خدمة.</p>
         <div className="space-y-3">
           {draft.services.map((s, i) => (
             <div key={i} className="flex items-start gap-3 rounded-xl bg-brand-50 p-3">
-              <input
-                className="mt-1 h-12 w-12 shrink-0 rounded-lg border border-brand-200 bg-white text-center text-2xl outline-none focus:border-emerald-500"
+              <IconEditor
                 value={s.icon}
-                onChange={(e) => setDraft((d) => {
+                label=""
+                compact
+                onChange={(v) => setDraft((d) => {
                   const services = [...d.services];
-                  services[i] = { ...services[i], icon: e.target.value };
+                  services[i] = { ...services[i], icon: v };
                   return { ...d, services };
                 })}
-                maxLength={2}
+                onUpload={async (file) => {
+                  try { const r = await api.upload(file); setDraft((d) => {
+                    const services = [...d.services];
+                    services[i] = { ...services[i], icon: r.url };
+                    return { ...d, services };
+                  }); }
+                  catch { toast("تعذّر رفع الصورة", "error"); }
+                }}
               />
               <div className="flex-1 space-y-2">
                 <input
@@ -502,6 +510,73 @@ function ContentManager({
           {saving ? <Spinner size={18} /> : <SettingsIcon className="h-4 w-4" />}
           حفظ كل التغييرات
         </button>
+      </div>
+    </div>
+  );
+}
+
+function isImageUrl(v: string) {
+  return /^https?:\/\//.test(v) || v.startsWith("/");
+}
+
+function IconEditor({
+  value,
+  label,
+  compact,
+  onChange,
+  onUpload,
+}: {
+  value: string;
+  label: string;
+  compact?: boolean;
+  onChange: (v: string) => void;
+  onUpload: (file: File) => void;
+}) {
+  const [uploading, setUploading] = useState(false);
+  const isImg = isImageUrl(value);
+  return (
+    <div className="flex items-center gap-3 rounded-xl bg-brand-50 p-3">
+      <div className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-lg border border-brand-200 bg-white">
+        {isImg ? (
+          <img src={value} alt="" className="h-full w-full object-contain" />
+        ) : (
+          <span className="text-2xl">{value || "❓"}</span>
+        )}
+      </div>
+      <div className="flex-1">
+        {label && <p className="text-sm font-semibold text-brand-900">{label}</p>}
+        <div className="mt-1 flex gap-1.5">
+          <input
+            className="input h-9 min-w-0 flex-1 text-xs"
+            value={isImg ? "" : value}
+            placeholder={isImg ? "(صورة مرفوعة)" : "إيموجي/رمز"}
+            onChange={(e) => onChange(e.target.value)}
+            maxLength={2}
+          />
+          <label className="btn-outline flex h-9 cursor-pointer items-center gap-1 px-2 text-xs">
+            {uploading ? <Spinner size={14} /> : <ImageIcon className="h-3.5 w-3.5" />}
+            <span className="hidden sm:inline">لوجو</span>
+            <input
+              type="file" accept="image/*" className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (!f) return;
+                setUploading(true);
+                onUpload(f);
+                setTimeout(() => setUploading(false), 1500);
+              }}
+            />
+          </label>
+          {isImg && (
+            <button
+              onClick={() => onChange("")}
+              className="btn-ghost h-9 w-9 p-0 text-rose-500"
+              title="إزالة الصورة"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

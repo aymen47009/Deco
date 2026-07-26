@@ -107,6 +107,11 @@ async function seedAdmin() {
   if (!existing) {
     await User.create({ name: "المدير العام", phone: "admin", password: await bcrypt.hash("admin123", 10), role: "admin", totalEarnings: 0, pendingDues: 0, active: true });
     console.log("Admin seeded");
+  } else if (existing.role !== "admin") {
+    existing.role = "admin";
+    existing.active = true;
+    await existing.save();
+    console.log("Admin role repaired");
   }
 }
 

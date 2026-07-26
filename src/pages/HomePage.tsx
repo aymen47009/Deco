@@ -12,6 +12,17 @@ import { WORK_TYPE_LABELS } from "../types";
 
 const TYPES: WorkType[] = ["placo", "pvc", "separation", "marble", "wood"];
 
+function isImageUrl(v: string) {
+  return /^https?:\/\//.test(v) || v.startsWith("/");
+}
+
+function ServiceIcon({ value, className }: { value: string; className?: string }) {
+  if (isImageUrl(value)) {
+    return <img src={value} alt="" className={`object-contain ${className ?? ""}`} />;
+  }
+  return <span className={className}>{value || "❓"}</span>;
+}
+
 const DEFAULT_SETTINGS: SiteSettings = {
   heroImage: "https://images.pexels.com/photos/7567307/pexels-photo-7567307.jpeg?auto=compress&cs=tinysrgb&w=1400",
   galleryImages: [
@@ -109,7 +120,9 @@ export function HomePage() {
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
           {settings.services.map((s, i) => (
             <div key={i} className="card p-5 text-center transition hover:shadow-md hover:-translate-y-1">
-              <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-brand-50 text-2xl">{s.icon}</div>
+              <div className="mx-auto grid h-14 w-14 place-items-center overflow-hidden rounded-2xl bg-brand-50">
+                <ServiceIcon value={s.icon} className="h-10 w-10 text-2xl" />
+              </div>
               <h3 className="mt-3 font-bold text-brand-900">{s.title}</h3>
               <p className="mt-1 text-xs text-brand-500">{s.desc}</p>
             </div>
@@ -133,7 +146,9 @@ export function HomePage() {
             ].map((s, i) => (
               <div key={i} className="card relative p-6">
                 <span className="absolute left-4 top-4 text-4xl font-extrabold text-brand-100">{i + 1}</span>
-                <div className="grid h-12 w-12 place-items-center rounded-xl bg-emerald-100 text-emerald-600">{s.icon}</div>
+                <div className="grid h-12 w-12 place-items-center overflow-hidden rounded-xl bg-emerald-100 text-emerald-600">
+                  <ServiceIcon value={s.icon} className="h-8 w-8 text-2xl" />
+                </div>
                 <h3 className="mt-4 font-bold text-brand-900">{s.title}</h3>
                 <p className="mt-1 text-xs text-brand-500">{s.desc}</p>
               </div>
@@ -305,7 +320,9 @@ function EmbeddedRequestForm({ settings, toast }: { settings: SiteSettings; toas
                     : "flex items-center justify-center gap-2 rounded-xl border-2 border-brand-200 bg-white px-3 py-3 text-sm font-semibold text-brand-600 transition hover:border-brand-300 hover:bg-brand-50"
                 }
               >
-                <span className="text-base">{settings.workTypeIcons[t]}</span>
+                <span className="grid h-6 w-6 shrink-0 place-items-center overflow-hidden">
+                  <ServiceIcon value={settings.workTypeIcons[t]} className="h-6 w-6 text-base" />
+                </span>
                 {WORK_TYPE_LABELS[t]}
               </button>
             );
