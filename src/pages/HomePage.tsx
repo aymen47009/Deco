@@ -147,7 +147,7 @@ export function HomePage() {
               <div key={i} className="card relative p-6">
                 <span className="absolute left-4 top-4 text-4xl font-extrabold text-brand-100">{i + 1}</span>
                 <div className="grid h-12 w-12 place-items-center overflow-hidden rounded-xl bg-emerald-100 text-emerald-600">
-                  <ServiceIcon value={s.icon} className="h-8 w-8 text-2xl" />
+                  {s.icon}
                 </div>
                 <h3 className="mt-4 font-bold text-brand-900">{s.title}</h3>
                 <p className="mt-1 text-xs text-brand-500">{s.desc}</p>
