@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowRight, Camera, CheckCircle2, Hammer, Loader as Loader2, Send } from "lucide-react";
+import { ArrowRight, Camera, CircleCheck as CheckCircle2, Hammer, Loader as Loader2, Send } from "lucide-react";
 import { api } from "../lib/api";
 import { useToast } from "../lib/toast";
 import { ImageUploader } from "../components/ImageUploader";
