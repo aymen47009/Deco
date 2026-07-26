@@ -4,8 +4,9 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build && cd server && npm install",
+    "clean": "node scripts/cleanup-old-files.js",
+    "dev": "npm run clean && vite",
+    "build": "npm run clean && tsc -b && vite build && cd server && npm install",
     "start": "cd server && npm start",
     "preview": "vite preview"
   },
