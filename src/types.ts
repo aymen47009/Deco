@@ -97,3 +97,16 @@ export const IMAGE_CATEGORY_LABELS: Record<ImageCategory, string> = {
   progress: "صور التقدم",
   completion: "صور الإنجاز",
 };
+
+export interface ServiceItem {
+  icon: string;
+  title: string;
+  desc: string;
+}
+
+export interface SiteSettings {
+  heroImage: string;
+  galleryImages: string[];
+  workTypeIcons: Record<WorkType, string>;
+  services: ServiceItem[];
+}
