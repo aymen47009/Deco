@@ -3,8 +3,12 @@ import mongoose from 'mongoose';
 const projectSchema = new mongoose.Schema(
   {
     title: { type: String, required: true, trim: true },
-    customer: { type: String, required: true, trim: true },
-    phone: { type: String, required: true, trim: true },
+    customer: {
+      name: { type: String, required: true, trim: true },
+      phone: { type: String, required: true, trim: true },
+      email: { type: String, default: '', trim: true },
+      address: { type: String, default: '', trim: true },
+    },
     workshopTypes: [{ type: String, default: [] }],
     spaceSize: { type: String, required: true, trim: true },
     status: {
