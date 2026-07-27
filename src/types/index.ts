@@ -34,6 +34,7 @@ export interface SiteConfig {
   whatsapp: string;
   instagram: string;
   facebook: string;
+  serviceIcons: Record<string, string>;
   createdAt: string;
   updatedAt: string;
 }
@@ -59,6 +60,7 @@ export interface SiteConfigInput {
   whatsapp?: string;
   instagram?: string;
   facebook?: string;
+  serviceIcons?: Record<string, string>;
 }
 
 export interface Worker {
@@ -238,4 +240,5 @@ export const DEFAULT_SITE_CONFIG: SiteConfigInput = {
   whatsapp: '',
   instagram: '',
   facebook: '',
+  serviceIcons: {},
 };
