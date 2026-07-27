@@ -130,7 +130,7 @@ body { font-family: var(--font); background: var(--bg); color: var(--ink); line-
 .service-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent), var(--brand)); transform: scaleX(0); transform-origin: right; transition: transform 500ms var(--ease); }
 .service-card:hover { transform: translateY(-8px); box-shadow: var(--sh-lg); border-color: var(--accent-light); }
 .service-card:hover::before { transform: scaleX(1); transform-origin: left; }
-.service-icon-wrap { width: 80px; height: 80px; margin: 0 auto 24px; border-radius: 50%; background: var(--surface-2); display: flex; align-items: center; justify-content: center; transition: all 400ms var(--bounce); }
+.service-icon-wrap { width: 80px; height: 80px; margin: 0 auto 24px; border-radius: 50%; background: var(--surface-2); display: flex; align-items: center; justify-content: center; transition: all 400ms var(--bounce); overflow: hidden; }
 .service-card:hover .service-icon-wrap { background: linear-gradient(135deg, var(--accent), var(--brand)); transform: scale(1.1); }
 .service-icon { font-size: 40px; transition: transform 400ms var(--bounce); display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
 .service-icon-img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
