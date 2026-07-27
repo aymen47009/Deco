@@ -22,6 +22,7 @@ const siteConfigSchema = new mongoose.Schema(
     whatsapp: { type: String, default: '' },
     instagram: { type: String, default: '' },
     facebook: { type: String, default: '' },
+    serviceIcons: { type: Map, of: String, default: {} },
   },
   { timestamps: true }
 );

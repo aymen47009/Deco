@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { api } from '../lib/api';
 import { Spinner, showToast } from './ui';
-import { DEFAULT_SITE_CONFIG, type SiteConfig, type SiteConfigInput } from '../types';
+import { DEFAULT_SITE_CONFIG, WORKSHOP_TYPES, WORKSHOP_TYPE_ICONS, type SiteConfig, type SiteConfigInput } from '../types';
 
 export function SiteSettings() {
   const [form, setForm] = useState<SiteConfigInput>(DEFAULT_SITE_CONFIG);
@@ -22,6 +22,7 @@ export function SiteSettings() {
           orderTitle: c.orderTitle, orderSubtitle: c.orderSubtitle,
           ctaText: c.ctaText, ctaPulse: c.ctaPulse, footerText: c.footerText,
           phone: c.phone, whatsapp: c.whatsapp, instagram: c.instagram, facebook: c.facebook,
+          serviceIcons: c.serviceIcons ?? {},
         });
       } catch { showToast('فشل تحميل الإعدادات', 'error'); }
       finally { setLoading(false); }
@@ -41,6 +42,22 @@ export function SiteSettings() {
       setForm((p) => ({ ...p, logo: url }));
       showToast('تم رفع الشعار', 'success');
     } catch { showToast('فشل رفع الشعار', 'error'); }
+  }
+
+  async function uploadServiceIcon(type: string, file: File) {
+    try {
+      const { url } = await api.uploadSiteImage(file);
+      setForm((p) => ({ ...p, serviceIcons: { ...(p.serviceIcons ?? {}), [type]: url } }));
+      showToast(`تم رفع صورة ${type}`, 'success');
+    } catch { showToast('فشل رفع الصورة', 'error'); }
+  }
+
+  function removeServiceIcon(type: string) {
+    setForm((p) => {
+      const next = { ...(p.serviceIcons ?? {}) };
+      delete next[type];
+      return { ...p, serviceIcons: next };
+    });
   }
 
   if (loading) return <Spinner label="جاري التحميل..." />;
@@ -95,6 +112,31 @@ export function SiteSettings() {
         <div className="field"><label>واتساب</label><input value={form.whatsapp ?? ''} onChange={(e) => setForm({ ...form, whatsapp: e.target.value })} dir="ltr" /></div>
         <div className="field"><label>انستغرام</label><input value={form.instagram ?? ''} onChange={(e) => setForm({ ...form, instagram: e.target.value })} /></div>
         <div className="field"><label>فيسبوك</label><input value={form.facebook ?? ''} onChange={(e) => setForm({ ...form, facebook: e.target.value })} /></div>
+      </div>
+
+      <div className="card">
+        <h3 className="card-h">صور أيقونات الخدمات</h3>
+        <p className="settings-hint">ارفع صورة مخصصة لكل خدمة. إذا لم ترفع صورة سيظهر الرمز الافتراضي.</p>
+        {WORKSHOP_TYPES.map((type) => {
+          const iconUrl = form.serviceIcons?.[type];
+          return (
+            <div key={type} className="service-icon-row">
+              <div className="service-icon-preview">
+                {iconUrl ? <img src={iconUrl} alt={type} /> : <span className="service-icon-fallback">{WORKSHOP_TYPE_ICONS[type] ?? '✨'}</span>}
+              </div>
+              <div className="service-icon-info">
+                <span className="service-icon-name">{type}</span>
+                <div className="service-icon-actions">
+                  <label className="btn btn-ghost">
+                    رفع صورة
+                    <input type="file" accept="image/*" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadServiceIcon(type, f); }} />
+                  </label>
+                  {iconUrl && <button className="btn btn-danger" onClick={() => removeServiceIcon(type)}>حذف</button>}
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       <div className="settings-save">

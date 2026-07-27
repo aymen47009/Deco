@@ -143,7 +143,7 @@ export function LandingPage() {
             {WORKSHOP_TYPES.map((type, i) => (
               <div className="service-card" key={type} style={{ animationDelay: `${i * 80}ms` }}>
                 <div className="service-icon-wrap">
-                  <span className="service-icon">{WORKSHOP_TYPE_ICONS[type] ?? '✨'}</span>
+                  <span className="service-icon">{cfg.serviceIcons?.[type] ? <img src={cfg.serviceIcons[type]} alt={type} className="service-icon-img" /> : (WORKSHOP_TYPE_ICONS[type] ?? '✨')}</span>
                 </div>
                 <h3 className="service-name">{type}</h3>
                 <div className="service-line" />
@@ -206,7 +206,7 @@ export function LandingPage() {
                     const selected = form.workshopTypes.includes(type);
                     return (
                       <button key={type} type="button" className={`chip ${selected ? 'chip-selected' : ''}`} onClick={() => toggleWorkshopType(type)}>
-                        <span className="chip-icon">{WORKSHOP_TYPE_ICONS[type] ?? '✨'}</span>
+                        <span className="chip-icon">{cfg.serviceIcons?.[type] ? <img src={cfg.serviceIcons[type]} alt={type} className="chip-icon-img" /> : (WORKSHOP_TYPE_ICONS[type] ?? '✨')}</span>
                         <span>{type}</span>
                         {selected && <span className="chip-check">✓</span>}
                       </button>
