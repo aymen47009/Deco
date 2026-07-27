@@ -93,20 +93,25 @@ export function LandingPage() {
     <div className="landing">
       <nav className="nav-bar">
         <div className="container nav-inner">
-          <div className="nav-brand">
+          <div className="nav-side nav-side-left">
+            <div className="nav-links">
+              <a href="#services">خدماتنا</a>
+              <a href="#gallery">معرض الأعمال</a>
+            </div>
+          </div>
+          <div className="nav-brand-center">
             {cfg.logo ? (
               <img src={cfg.logo} alt={cfg.brandName} className="nav-logo" />
             ) : (
               <span className="nav-logo-mark">{(cfg.brandName ?? 'D').charAt(0)}</span>
             )}
-            <span className="nav-brand-name">{cfg.brandName}</span>
           </div>
-          <div className="nav-links">
-            <a href="#services">خدماتنا</a>
-            <a href="#gallery">معرض الأعمال</a>
-            <a href="#order">اطلب الآن</a>
+          <div className="nav-side nav-side-right">
+            <div className="nav-links">
+              <a href="#order">اطلب الآن</a>
+            </div>
+            <button className="btn btn-primary btn-sm nav-cta" onClick={scrollToOrder}>{cfg.ctaText}</button>
           </div>
-          <button className="btn btn-primary btn-sm nav-cta" onClick={scrollToOrder}>{cfg.ctaText}</button>
         </div>
       </nav>
 
@@ -234,7 +239,10 @@ export function LandingPage() {
             <span className="footer-name">{cfg.brandName}</span>
           </div>
           <p className="footer-text">{cfg.footerText}</p>
-          <button className="footer-admin-link" onClick={goToAdmin}>لوحة التحكم</button>
+          <div className="footer-links">
+            <button className="footer-admin-link" onClick={goToAdmin}>لوحة التحكم</button>
+            <button className="footer-admin-link" onClick={() => { window.location.hash = 'worker'; }}>فضاء العامل</button>
+          </div>
         </div>
       </footer>
 

@@ -14,6 +14,14 @@ router.get('/', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+router.get('/phone/:phone', async (req, res) => {
+  try {
+    const worker = await Worker.findOne({ phone: req.params.phone }).populate('assignedProjects', 'title customer phone workshopTypes spaceSize status progress');
+    if (!worker) return res.status(404).json({ error: 'Worker not found' });
+    res.json(worker);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 router.get('/:id', async (req, res) => {
   try {
     const worker = await Worker.findById(req.params.id).populate('assignedProjects', 'title status');

@@ -40,6 +40,8 @@ export const api = {
     const qs = params.toString();
     return request<Worker[]>(`/workers${qs ? `?${qs}` : ''}`);
   },
+  getWorkerByPhone: (phone: string) =>
+    request<Worker & { assignedProjects: Project[] }>(`/workers/phone/${encodeURIComponent(phone)}`),
   createWorker: (data: WorkerInput) =>
     request<Worker>('/workers', { method: 'POST', body: JSON.stringify(data) }),
   updateWorker: (id: string, data: Partial<WorkerInput>) =>
