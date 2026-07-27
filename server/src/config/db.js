@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { migrateProjectCodeIndex } from "../models/Project.js";
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
@@ -19,6 +20,7 @@ export async function connectDB() {
     });
     isConnected = true;
     console.log(`[db] Connected to MongoDB Atlas: ${conn.connection.host}/${conn.connection.name}`);
+    await migrateProjectCodeIndex();
   } catch (err) {
     console.error("[db] Failed to connect to MongoDB Atlas:", err.message);
     throw err;
