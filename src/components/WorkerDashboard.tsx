@@ -89,12 +89,12 @@ export function WorkerDashboard({ onExit }: { onExit: () => void }) {
             {worker.assignedProjects.map((p) => (
               <div key={p._id} className={`worker-project-card ${['completed', 'cancelled'].includes(p.status) ? 'is-done' : ''}`}>
                 <div className="worker-project-head">
-                  <h3>{p.title || p.customer}</h3>
+                  <h3>{p.title || p.customer.name}</h3>
                   <span className={`worker-status-badge worker-status-${p.status}`}>{PROJECT_STATUS_LABELS[p.status]}</span>
                 </div>
                 <div className="worker-project-meta">
-                  <span>👤 {p.customer}</span>
-                  <span>📞 <span dir="ltr">{p.phone}</span></span>
+                  <span>👤 {p.customer.name}</span>
+                  <span>📞 <span dir="ltr">{p.customer.phone}</span></span>
                 </div>
                 <div className="worker-project-types">{p.workshopTypes.join(' • ')}</div>
                 <div className="worker-project-space">المساحة: {p.spaceSize}</div>

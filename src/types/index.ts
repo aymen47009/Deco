@@ -106,11 +106,17 @@ export interface MaterialInput {
   supplier?: string;
 }
 
+export interface ProjectCustomer {
+  name: string;
+  phone: string;
+  email?: string;
+  address?: string;
+}
+
 export interface Project {
   _id: string;
   title: string;
-  customer: string;
-  phone: string;
+  customer: ProjectCustomer;
   workshopTypes: string[];
   spaceSize: string;
   status: ProjectStatus;
@@ -125,8 +131,7 @@ export interface Project {
 
 export interface ProjectInput {
   title: string;
-  customer: string;
-  phone: string;
+  customer: ProjectCustomer;
   workshopTypes: string[];
   spaceSize: string;
 }
