@@ -1,5 +1,6 @@
 const Project = require('../models/Project');
 const Worker = require('../models/Worker');
+const { sendMetaEvent } = require('../utils/metaConversions');
 
 const router = require('express').Router();
 
@@ -43,6 +44,24 @@ router.post('/', async (req, res) => {
     project.recalculateProgress();
     await project.save();
     res.status(201).json(project);
+
+    try {
+      await sendMetaEvent({
+        eventName: 'Lead',
+        eventId: String(project._id),
+        userData: {
+          phone: project.customer?.phone,
+          name: project.customer?.name,
+        },
+        customData: {
+          content_name: project.title,
+          currency: 'USD',
+          value: project.budget || 0,
+        },
+      });
+    } catch (metaErr) {
+      console.log('[Meta CAPI] Unexpected error:', metaErr.message);
+    }
   } catch (err) { res.status(400).json({ error: err.message }); }
 });
 

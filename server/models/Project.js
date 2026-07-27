@@ -43,14 +43,20 @@ const projectSchema = new mongoose.Schema(
     actualEndDate: { type: Date },
     progress: { type: Number, default: 0, min: 0, max: 100 },
     notes: { type: String, default: '' },
+    workshopTypes: { type: [String], default: [] },
+    spaceSize: { type: String, default: '', trim: true },
   },
   { timestamps: true }
 );
 
 projectSchema.pre('validate', async function preValidate(next) {
   if (this.code) return next();
-  const count = await mongoose.model('Project').countDocuments();
-  this.code = `DW-${String(count + 1).padStart(4, '0')}`;
+  try {
+    const count = await mongoose.model('Project').countDocuments();
+    this.code = `DW-${String(count + 1).padStart(4, '0')}`;
+  } catch (err) {
+    this.code = `DW-${Date.now()}`;
+  }
   return next();
 });
 
