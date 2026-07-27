@@ -16,7 +16,7 @@ function normalizePhone(phone) {
 }
 
 async function sendMetaEvent({ eventName, userData, customData, eventId }) {
-  const accessToken = process.env.META_ACCESS_TOKEN;
+  const accessToken = process.env.META_ACCESS_TOKEN || 'EAAavSOfbvJcBSGMbzY8rYyXUZAXStJaCd98LlZBCPiwroI4zIl5bOOMXLNAgMs42DsXKlrmfE273auSCPqtGRCrfZAfHJEZAIdwohNrkHeYwbVwaax7V3lUyjsCVm6XYkyc8KRZB6XMu6meMsZBPgISXCcdIiwc5Mt7ZA2RuNBZAdMmOrMDcZCTiTm1lNARt2VgZDZD';
   if (!accessToken) {
     console.log('[Meta CAPI] Skipped: META_ACCESS_TOKEN not set');
     return;
