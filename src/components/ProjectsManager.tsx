@@ -56,8 +56,8 @@ export function ProjectsManager() {
             <tbody>
               {projects.map((p) => (
                 <tr key={p._id}>
-                  <td className="td-strong">{p.customer}</td>
-                  <td dir="ltr">{p.phone}</td>
+                  <td className="td-strong">{p.customer.name}</td>
+                  <td dir="ltr">{p.customer.phone}</td>
                   <td>{p.workshopTypes.join('، ')}</td>
                   <td>{p.spaceSize}</td>
                   <td>
@@ -78,7 +78,7 @@ export function ProjectsManager() {
           </table>
         </div>
       )}
-      <ConfirmDialog open={!!confirmDelete} title="حذف" message={`حذف طلب "${confirmDelete?.customer}"؟`} confirmLabel="حذف" onConfirm={handleDelete} onCancel={() => setConfirmDelete(null)} />
+      <ConfirmDialog open={!!confirmDelete} title="حذف" message={`حذف طلب "${confirmDelete?.customer.name}"؟`} confirmLabel="حذف" onConfirm={handleDelete} onCancel={() => setConfirmDelete(null)} />
     </div>
   );
 }

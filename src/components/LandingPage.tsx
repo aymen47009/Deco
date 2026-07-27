@@ -3,17 +3,24 @@ import { api } from '../lib/api';
 import { Spinner, showToast } from './ui';
 import {
   WORKSHOP_TYPES, WORKSHOP_TYPE_ICONS, SPACE_SIZES, DEFAULT_SITE_CONFIG,
-  type Project, type ProjectInput, type SiteConfig, type SiteConfigInput,
+  type Project, type SiteConfig, type SiteConfigInput,
   type GalleryImage,
 } from '../types';
+
+interface OrderForm {
+  customer: string;
+  phone: string;
+  workshopTypes: string[];
+  spaceSize: string;
+}
+
+const EMPTY_FORM: OrderForm = { customer: '', phone: '', workshopTypes: [], spaceSize: '' };
 
 export function LandingPage() {
   const [config, setConfig] = useState<SiteConfig | null>(null);
   const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
   const [heroImages, setHeroImages] = useState<GalleryImage[]>([]);
-  const [form, setForm] = useState<ProjectInput>({
-    title: '', customer: '', phone: '', workshopTypes: [], spaceSize: '',
-  });
+  const [form, setForm] = useState<OrderForm>(EMPTY_FORM);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState<Project | null>(null);
@@ -46,8 +53,12 @@ export function LandingPage() {
     e.preventDefault();
     setSubmitting(true);
     try {
-      const projectData = { ...form, title: "طلب جديد: " + form.customer };
-      const project = await api.createProject(projectData);
+      const project = await api.createProject({
+        title: "طلب جديد: " + form.customer,
+        customer: { name: form.customer, phone: form.phone },
+        workshopTypes: form.workshopTypes,
+        spaceSize: form.spaceSize,
+      });
       setSubmitted(project);
       showToast('تم إرسال طلبك بنجاح', 'success');
     } catch (err) {
@@ -71,17 +82,17 @@ export function LandingPage() {
             <div className="success-check">✓</div>
             <h2>تم استلام طلبك بنجاح!</h2>
             <div className="success-details">
-              <div className="success-row"><span>الاسم</span><strong>{submitted.customer}</strong></div>
-              <div className="success-row"><span>الهاتف</span><strong dir="ltr">{submitted.phone}</strong></div>
+              <div className="success-row"><span>الاسم</span><strong>{submitted.customer.name}</strong></div>
+              <div className="success-row"><span>الهاتف</span><strong dir="ltr">{submitted.customer.phone}</strong></div>
               <div className="success-row"><span>المساحة</span><strong>{submitted.spaceSize}</strong></div>
               {submitted.workshopTypes.length > 0 && (
                 <div className="success-row"><span>أنواع العمل</span><strong>{submitted.workshopTypes.join('، ')}</strong></div>
               )}
             </div>
-            <p className="success-note">سنتواصل معك قريباً على الرقم: <span dir="ltr">{submitted.phone}</span></p>
+            <p className="success-note">سنتواصل معك قريباً على الرقم: <span dir="ltr">{submitted.customer.phone}</span></p>
             <button className="btn btn-primary btn-lg" onClick={() => {
               setSubmitted(null);
-              setForm({ title: '', customer: '', phone: '', workshopTypes: [], spaceSize: '' });
+              setForm(EMPTY_FORM);
             }}>طلب جديد</button>
           </div>
         </div>
