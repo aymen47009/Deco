@@ -60,14 +60,6 @@ export function LandingPage() {
         spaceSize: form.spaceSize,
       });
       setSubmitted(project);
-      if (typeof window.fbq === 'function') {
-        window.fbq('track', 'Lead', {
-          content_name: form.customer,
-          content_category: form.workshopTypes.join(', '),
-          currency: 'USD',
-          value: 0,
-        });
-      }
       showToast('تم إرسال طلبك بنجاح', 'success');
     } catch (err) {
       showToast(err instanceof Error ? err.message : 'فشل إرسال الطلب', 'error');
