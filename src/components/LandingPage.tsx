@@ -46,7 +46,8 @@ export function LandingPage() {
     e.preventDefault();
     setSubmitting(true);
     try {
-      const project = await api.createProject(form);
+      const projectData = { ...form, title: "طلب جديد: " + form.customer };
+      const project = await api.createProject(projectData);
       setSubmitted(project);
       showToast('تم إرسال طلبك بنجاح', 'success');
     } catch (err) {

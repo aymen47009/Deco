@@ -210,6 +210,7 @@ export const WORKSHOP_TYPE_ICONS: Record<string, string> = {
 };
 
 export const SPACE_SIZES = [
+  '2 م² - 10 م²',
   '10 م² - 30 م²',
   '30 م² - 60 م²',
   '60 م² - 100 م²',
