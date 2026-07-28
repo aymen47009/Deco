@@ -49,7 +49,7 @@ export function LandingPage() {
     });
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSubmitting(true);
     try {
@@ -60,19 +60,24 @@ export function LandingPage() {
         spaceSize: form.spaceSize,
       });
       setSubmitted(project);
-      if (typeof window.fbq === 'function') {
-        window.fbq('track', 'Lead', {
+
+      // 🔥 هذا هو كود البيكسل الذي يرسل حدث Lead لفيسبوك عند نجاح الطلب
+      const fbq = (window as any).fbq;
+      if (typeof fbq === 'function') {
+        fbq('track', 'Lead', {
           content_name: form.customer,
           content_category: form.workshopTypes.join(', '),
-          currency: 'USD',
+          currency: 'DZD',
           value: 0,
         });
       }
+
       showToast('تم إرسال طلبك بنجاح', 'success');
     } catch (err) {
       showToast(err instanceof Error ? err.message : 'فشل إرسال الطلب', 'error');
     } finally { setSubmitting(false); }
   }
+
 
   function scrollToOrder() { orderRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
   function goToAdmin() { window.location.hash = 'admin'; }
