@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 
-const PIXEL_ID = '3642416299242334';
-const GRAPH_API_URL = `https://graph.facebook.com/v19.0/${PIXEL_ID}/events`;
+const PIXEL_ID = process.env.META_PIXEL_ID;
+const GRAPH_API_URL = `https://graph.facebook.com/v19.0/${process.env.META_PIXEL_ID}/events`;
 
 function sha256(value) {
   if (!value) return undefined;
@@ -16,9 +16,9 @@ function normalizePhone(phone) {
 }
 
 async function sendMetaEvent({ eventName, userData, customData, eventId }) {
-  const accessToken = process.env.META_ACCESS_TOKEN || 'EAAavSOfbvJcBSGMbzY8rYyXUZAXStJaCd98LlZBCPiwroI4zIl5bOOMXLNAgMs42DsXKlrmfE273auSCPqtGRCrfZAfHJEZAIdwohNrkHeYwbVwaax7V3lUyjsCVm6XYkyc8KRZB6XMu6meMsZBPgISXCcdIiwc5Mt7ZA2RuNBZAdMmOrMDcZCTiTm1lNARt2VgZDZD';
-  if (!accessToken) {
-    console.log('[Meta CAPI] Skipped: META_ACCESS_TOKEN not set');
+  const accessToken = process.env.META_ACCESS_TOKEN;
+  if (!PIXEL_ID || !accessToken) {
+    console.log('[Meta CAPI] Skipped: META_PIXEL_ID or META_ACCESS_TOKEN not set');
     return;
   }
 
