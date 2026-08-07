@@ -5,6 +5,7 @@ const root = process.cwd();
 
 const keepComponents = new Set([
   'AdminDashboard.tsx',
+  'ArtisanPortal.tsx',
   'GalleryManager.tsx',
   'LandingPage.tsx',
   'MaterialsManager.tsx',
