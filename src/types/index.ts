@@ -1,0 +1,361 @@
+export type ProjectStatus =
+  | 'preparing'
+  | 'in_progress'
+  | 'finishing'
+  | 'completed'
+  | 'new'
+  | 'in_review'
+  | 'approved'
+  | 'review'
+  | 'cancelled';
+
+export type ProjectStage = 'before' | 'during' | 'after';
+
+export type WorkerRole = 'placo' | 'wood' | 'marble' | 'pvc' | 'demontable' | 'designer' | 'manager';
+export type WorkerStatus = 'available' | 'busy' | 'on_leave' | 'inactive';
+export type MaterialCategory = 'placo' | 'wood' | 'marble' | 'pvc' | 'demontable' | 'tools' | 'other';
+export type GalleryCategory = 'hero' | 'gallery' | 'service';
+
+export interface SiteConfig {
+  _id: string;
+  logo: string;
+  brandName: string;
+  heroTitle: string;
+  heroSubtitle: string;
+  heroTagline: string;
+  heroBadge: string;
+  heroImage: string;
+  servicesTitle: string;
+  servicesSubtitle: string;
+  galleryTitle: string;
+  gallerySubtitle: string;
+  orderTitle: string;
+  orderSubtitle: string;
+  ctaText: string;
+  ctaPulse: boolean;
+  footerText: string;
+  phone: string;
+  whatsapp: string;
+  instagram: string;
+  facebook: string;
+  serviceIcons: Record<string, string>;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SiteConfigInput {
+  logo?: string;
+  brandName?: string;
+  heroTitle?: string;
+  heroSubtitle?: string;
+  heroTagline?: string;
+  heroBadge?: string;
+  heroImage?: string;
+  servicesTitle?: string;
+  servicesSubtitle?: string;
+  galleryTitle?: string;
+  gallerySubtitle?: string;
+  orderTitle?: string;
+  orderSubtitle?: string;
+  ctaText?: string;
+  ctaPulse?: boolean;
+  footerText?: string;
+  phone?: string;
+  whatsapp?: string;
+  instagram?: string;
+  facebook?: string;
+  serviceIcons?: Record<string, string>;
+}
+
+export interface Worker {
+  _id: string;
+  name: string;
+  phone: string;
+  role: WorkerRole;
+  status: WorkerStatus;
+  avatar: string;
+  assignedProjects: Project[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface WorkerInput {
+  name: string;
+  phone: string;
+  role: WorkerRole;
+  status?: WorkerStatus;
+  avatar?: string;
+}
+
+export interface Material {
+  _id: string;
+  name: string;
+  category: MaterialCategory;
+  unit: string;
+  stock: number;
+  lowStockThreshold: number;
+  pricePerUnit: number;
+  supplier: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MaterialInput {
+  name: string;
+  category: MaterialCategory;
+  unit?: string;
+  stock?: number;
+  lowStockThreshold?: number;
+  pricePerUnit?: number;
+  supplier?: string;
+}
+
+export interface ProjectCustomer {
+  name: string;
+  phone: string;
+  email?: string;
+  address?: string;
+}
+
+export interface ProjectMaterial {
+  name?: string;
+  materialName: string;
+  costPrice: number;
+  sellPrice: number;
+  quantity: number;
+}
+
+export interface ArtisanTask {
+  taskName: string;
+  unitPrice: number;
+  quantity: number;
+  totalTaskPrice: number;
+}
+
+export interface ProjectPayment {
+  amount: number;
+  collectedBy: 'admin' | 'artisan';
+  isVerified: boolean;
+  date: string;
+}
+
+export interface ProjectMedia {
+  _id: string;
+  url: string;
+  stage: ProjectStage;
+  visibleToClient: boolean;
+  uploadedBy: 'admin' | 'artisan';
+}
+
+export interface ArtisanDetails {
+  artisanId: string | null;
+  agreedWage: number;
+  isWagePaid: boolean;
+}
+
+export interface ProjectFinancials {
+  materialsCost: number;
+  materialsRevenue: number;
+  materialMargin: number;
+  totalVerifiedPayments: number;
+  totalPaid: number;
+  pendingPayments: number;
+  remaining: number;
+  remainingBalance: number;
+  artisanWage: number;
+  totalArtisanPayout: number;
+  netProfit: number;
+}
+
+export interface Project {
+  _id: string;
+  code: string;
+  title: string;
+  customer: ProjectCustomer;
+  workshopTypes: string[];
+  spaceSize: string;
+  status: ProjectStatus;
+  progress: number;
+  images: string[];
+  trackingToken: string;
+  totalAgreedAmount: number;
+  assignedArtisanId: string | null;
+  artisanTasks: ArtisanTask[];
+  totalArtisanPayout: number;
+  materials: ProjectMaterial[];
+  payments: ProjectPayment[];
+  media: ProjectMedia[];
+  artisanDetails: ArtisanDetails;
+  assignedWorkers: Worker[];
+  preferredDate: string | null;
+  completedAt: string | null;
+  financials?: ProjectFinancials;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ProjectInput {
+  title: string;
+  customer: ProjectCustomer;
+  workshopTypes: string[];
+  spaceSize: string;
+  totalAgreedAmount?: number;
+  assignedWorkers?: string[];
+}
+
+export interface ProjectMaterialInput {
+  materialName: string;
+  costPrice: number;
+  sellPrice: number;
+  quantity: number;
+}
+
+export interface ArtisanTaskInput {
+  taskName: string;
+  quantity: number;
+  unitPrice: number;
+}
+
+export interface ProjectPaymentInput {
+  amount: number;
+  collectedBy: 'admin' | 'artisan';
+  date?: string;
+}
+
+export interface ArtisanWageInput {
+  artisanId?: string;
+  agreedWage: number;
+  isWagePaid?: boolean;
+}
+
+export interface ArtisanSummary {
+  _id: string;
+  name: string;
+  phone: string;
+  role: 'worker' | 'admin';
+  active: boolean;
+}
+
+export interface ClientTrackingData {
+  status: ProjectStatus;
+  progress: number;
+  timeline: { key: string; label: string; order: number; completed: boolean; active: boolean }[];
+  totalAgreedAmount: number;
+  totalPaid: number;
+  remainingBalance: number;
+  media: { url: string; stage: ProjectStage; uploadedAt: string | null }[];
+}
+
+export interface GalleryImage {
+  _id: string;
+  url: string;
+  publicId: string;
+  title: string;
+  category: GalleryCategory;
+  order: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const PROJECT_STATUS_LABELS: Record<ProjectStatus, string> = {
+  preparing: 'تجهيز السلعة',
+  in_progress: 'انطلاق الأشغال',
+  finishing: 'مرحلة التشطيب',
+  completed: 'مكتمل',
+  new: 'جديد',
+  in_review: 'قيد المراجعة',
+  approved: 'مقبول',
+  review: 'مراجعة',
+  cancelled: 'ملغي',
+};
+
+export const PROJECT_STATUSES = Object.keys(PROJECT_STATUS_LABELS) as ProjectStatus[];
+
+export const WORKER_ROLE_LABELS: Record<WorkerRole, string> = {
+  placo: 'بلاكو بلاتر',
+  wood: 'بديل الخشب',
+  marble: 'بديل الرخام',
+  pvc: 'ألواح PVC',
+  demontable: 'ديمونطابل',
+  designer: 'مصمم',
+  manager: 'مدير',
+};
+
+export const WORKER_ROLES = Object.keys(WORKER_ROLE_LABELS) as WorkerRole[];
+
+export const WORKER_STATUS_LABELS: Record<WorkerStatus, string> = {
+  available: 'متاح',
+  busy: 'مشغول',
+  on_leave: 'في إجازة',
+  inactive: 'غير نشط',
+};
+
+export const WORKER_STATUSES = Object.keys(WORKER_STATUS_LABELS) as WorkerStatus[];
+
+export const MATERIAL_CATEGORY_LABELS: Record<MaterialCategory, string> = {
+  placo: 'بلاكو',
+  wood: 'خشب',
+  marble: 'رخام',
+  pvc: 'PVC',
+  demontable: 'ديمونطابل',
+  tools: 'أدوات',
+  other: 'أخرى',
+};
+
+export const MATERIAL_CATEGORIES = Object.keys(MATERIAL_CATEGORY_LABELS) as MaterialCategory[];
+
+export const GALLERY_CATEGORY_LABELS: Record<GalleryCategory, string> = {
+  hero: 'القسم الرئيسي',
+  gallery: 'معرض الأعمال',
+  service: 'الخدمات',
+};
+
+export const GALLERY_CATEGORIES = Object.keys(GALLERY_CATEGORY_LABELS) as GalleryCategory[];
+
+export const WORKSHOP_TYPES = [
+  'بلاكو بلاتر',
+  'بديل الخشب',
+  'بديل الرخام',
+  'ألواح PVC',
+  'ديمونطابل',
+];
+
+export const WORKSHOP_TYPE_ICONS: Record<string, string> = {
+  'بلاكو بلاتر': '🧱',
+  'بديل الخشب': '🪵',
+  'بديل الرخام': '⚪',
+  'ألواح PVC': '📋',
+  'ديمونطابل': '🔧',
+};
+
+export const SPACE_SIZES = [
+  '2 م² - 10 م²',
+  '10 م² - 30 م²',
+  '30 م² - 60 م²',
+  '60 م² - 100 م²',
+  'أكثر من 100 م²',
+];
+
+export const DEFAULT_SITE_CONFIG: SiteConfigInput = {
+  logo: '',
+  brandName: 'ديكو ورشات',
+  heroTitle: 'إعادة التلبيس الداخلي للمنازل',
+  heroSubtitle: 'بلاكو بلاتر، بديل الخشب، بديل الرخام، PVC، ديمونطابل',
+  heroTagline: 'عمل احترافي — تسليم في الوقت — أسعار مناسبة',
+  heroBadge: 'ديكو ورشات',
+  heroImage: '',
+  servicesTitle: 'أنواع العمل التي نقدمها',
+  servicesSubtitle: 'نوفر مجموعة متكاملة من خدمات إعادة التلبيس',
+  galleryTitle: 'معرض أعمالنا',
+  gallerySubtitle: 'نماذج من إنجازاتنا السابقة',
+  orderTitle: 'نموذج الطلب',
+  orderSubtitle: 'املأ النموذج وسنتواصل معك في أقرب وقت',
+  ctaText: 'اطلب الآن',
+  ctaPulse: true,
+  footerText: '© ديكو ورشات — جميع الحقوق محفوظة',
+  phone: '',
+  whatsapp: '',
+  instagram: '',
+  facebook: '',
+  serviceIcons: {},
+};
