@@ -38,14 +38,20 @@ async function sendMetaEvent({ eventName, userData, customData, eventId }) {
     ],
     access_token: accessToken,
   };
+  if (process.env.META_TEST_CODE) {
+    payload.test_event_code = process.env.META_TEST_CODE;
+  }
 
   try {
-    const response = await fetch(GRAPH_API_URL, {
+    const metaResponse = await fetch(GRAPH_API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
-    const result = await response.json();
+    const metaData = await metaResponse.json();
+    console.log('[Meta CAPI Status]:', metaResponse.status);
+    console.log('[Meta CAPI Response]:', metaData);
+    const result = metaData;
     if (result.error) {
       console.log(`[Meta CAPI] Error sending ${eventName}:`, result.error.message);
     } else {
