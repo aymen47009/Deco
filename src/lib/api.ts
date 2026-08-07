@@ -1,5 +1,7 @@
 import type {
   Project, ProjectInput, ProjectStatus,
+  ProjectMaterialInput, ProjectPaymentInput, ArtisanWageInput,
+  ClientTrackingData,
   Worker, WorkerInput, WorkerStatus,
   Material, MaterialInput,
   SiteConfig, SiteConfigInput,
@@ -32,6 +34,36 @@ export const api = {
     request<Project>(`/projects/${id}/progress`, { method: 'PATCH', body: JSON.stringify({ progress }) }),
   deleteProject: (id: string) =>
     request<{ message: string }>(`/projects/${id}`, { method: 'DELETE' }),
+  getProject: (id: string) =>
+    request<Project>(`/projects/${id}`),
+  updateProject: (id: string, data: Partial<ProjectInput>) =>
+    request<Project>(`/projects/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  addProjectMaterial: (id: string, data: ProjectMaterialInput) =>
+    request<Project>(`/projects/${id}/materials`, { method: 'POST', body: JSON.stringify(data) }),
+  removeProjectMaterial: (id: string, index: number) =>
+    request<{ message: string }>(`/projects/${id}/materials/${index}`, { method: 'DELETE' }),
+  addProjectPayment: (id: string, data: ProjectPaymentInput) =>
+    request<Project>(`/projects/${id}/payments`, { method: 'POST', body: JSON.stringify(data) }),
+  verifyProjectPayment: (id: string, payIndex: number) =>
+    request<Project>(`/projects/${id}/payments/${payIndex}/verify`, { method: 'PATCH', body: JSON.stringify({}) }),
+  updateArtisanWage: (id: string, data: ArtisanWageInput) =>
+    request<Project>(`/projects/${id}/artisan-wage`, { method: 'PATCH', body: JSON.stringify(data) }),
+  uploadProjectMedia: (id: string, file: File, stage: string, visibleToClient: boolean, uploadedBy: string) => {
+    const formData = new FormData();
+    formData.append('image', file);
+    formData.append('stage', stage);
+    formData.append('visibleToClient', String(visibleToClient));
+    formData.append('uploadedBy', uploadedBy);
+    return fetch(`${API_BASE}/projects/${id}/media`, { method: 'POST', body: formData }).then((r) => {
+      if (!r.ok) throw new Error('Upload failed');
+      return r.json() as Promise<Project>;
+    });
+  },
+  deleteProjectMedia: (id: string, mediaId: string) =>
+    request<{ message: string }>(`/projects/${id}/media/${mediaId}`, { method: 'DELETE' }),
+
+  getClientTracking: (token: string) =>
+    request<ClientTrackingData>(`/client/track/${token}`),
 
   getWorkers: (filters?: { status?: WorkerStatus; role?: string }) => {
     const params = new URLSearchParams();

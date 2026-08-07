@@ -1,11 +1,11 @@
 export type ProjectStatus =
-  | 'new'
-  | 'in_review'
-  | 'approved'
+  | 'preparing'
   | 'in_progress'
-  | 'review'
+  | 'finishing'
   | 'completed'
   | 'cancelled';
+
+export type ProjectStage = 'before' | 'during' | 'after';
 
 export type WorkerRole = 'placo' | 'wood' | 'marble' | 'pvc' | 'demontable' | 'designer' | 'manager';
 export type WorkerStatus = 'available' | 'busy' | 'on_leave' | 'inactive';
@@ -113,8 +113,48 @@ export interface ProjectCustomer {
   address?: string;
 }
 
+export interface ProjectMaterial {
+  materialName: string;
+  costPrice: number;
+  sellPrice: number;
+  quantity: number;
+}
+
+export interface ProjectPayment {
+  amount: number;
+  collectedBy: 'admin' | 'artisan';
+  isVerified: boolean;
+  date: string;
+}
+
+export interface ProjectMedia {
+  _id: string;
+  url: string;
+  stage: ProjectStage;
+  visibleToClient: boolean;
+  uploadedBy: 'admin' | 'artisan';
+}
+
+export interface ArtisanDetails {
+  artisanId: string | null;
+  agreedWage: number;
+  isWagePaid: boolean;
+}
+
+export interface ProjectFinancials {
+  materialsCost: number;
+  materialsRevenue: number;
+  materialMargin: number;
+  totalPaid: number;
+  pendingPayments: number;
+  remaining: number;
+  artisanWage: number;
+  netProfit: number;
+}
+
 export interface Project {
   _id: string;
+  code: string;
   title: string;
   customer: ProjectCustomer;
   workshopTypes: string[];
@@ -122,9 +162,16 @@ export interface Project {
   status: ProjectStatus;
   progress: number;
   images: string[];
+  trackingToken: string;
+  totalAgreedAmount: number;
+  materials: ProjectMaterial[];
+  payments: ProjectPayment[];
+  media: ProjectMedia[];
+  artisanDetails: ArtisanDetails;
   assignedWorkers: Worker[];
   preferredDate: string | null;
   completedAt: string | null;
+  financials?: ProjectFinancials;
   createdAt: string;
   updatedAt: string;
 }
@@ -134,6 +181,45 @@ export interface ProjectInput {
   customer: ProjectCustomer;
   workshopTypes: string[];
   spaceSize: string;
+  totalAgreedAmount?: number;
+  assignedWorkers?: string[];
+}
+
+export interface ProjectMaterialInput {
+  materialName: string;
+  costPrice: number;
+  sellPrice: number;
+  quantity: number;
+}
+
+export interface ProjectPaymentInput {
+  amount: number;
+  collectedBy: 'admin' | 'artisan';
+  date?: string;
+}
+
+export interface ArtisanWageInput {
+  artisanId?: string;
+  agreedWage: number;
+  isWagePaid?: boolean;
+}
+
+export interface ClientTrackingData {
+  code: string;
+  title: string;
+  customerName: string;
+  workshopTypes: string[];
+  spaceSize: string;
+  status: ProjectStatus;
+  progress: number;
+  totalAgreedAmount: number;
+  totalPaid: number;
+  remaining: number;
+  currentStage: { key: string; label: string; order: number };
+  stages: { key: string; label: string; order: number }[];
+  media: { url: string; stage: ProjectStage; date: string }[];
+  createdAt: string;
+  completedAt: string | null;
 }
 
 export interface GalleryImage {
@@ -148,11 +234,9 @@ export interface GalleryImage {
 }
 
 export const PROJECT_STATUS_LABELS: Record<ProjectStatus, string> = {
-  new: 'جديد',
-  in_review: 'قيد المراجعة',
-  approved: 'مقبول',
-  in_progress: 'قيد التنفيذ',
-  review: 'للمراجعة',
+  preparing: 'تجهيز السلعة',
+  in_progress: 'انطلاق الأشغال',
+  finishing: 'مرحلة التشطيب',
   completed: 'مكتمل',
   cancelled: 'ملغي',
 };

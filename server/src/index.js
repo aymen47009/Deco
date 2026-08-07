@@ -7,6 +7,7 @@ import dotenv from "dotenv";
 import { connectDB, isDBConnected } from "./config/db.js";
 import projectsRouter from "./routes/projects.js";
 import customersRouter from "./routes/customers.js";
+import clientRouter from "./routes/client.js";
 import { notFound, errorHandler } from "./middleware/error.js";
 
 dotenv.config();
@@ -28,6 +29,7 @@ app.get("/api/health", (_req, res) => {
 
 app.use("/api/projects", projectsRouter);
 app.use("/api/customers", customersRouter);
+app.use("/api/client", clientRouter);
 
 app.use(notFound);
 app.use(errorHandler);

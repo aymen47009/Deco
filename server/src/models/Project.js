@@ -14,11 +14,41 @@ const projectSchema = new mongoose.Schema(
     spaceSize: { type: String, required: true, trim: true },
     status: {
       type: String,
-      enum: ['new', 'in_review', 'approved', 'in_progress', 'review', 'completed', 'cancelled'],
-      default: 'new',
+      enum: ['preparing', 'in_progress', 'finishing', 'completed', 'cancelled'],
+      default: 'preparing',
     },
     progress: { type: Number, default: 0, min: 0, max: 100 },
-    images: [{ type: String, default: [] }],
+    trackingToken: { type: String, unique: true, index: true },
+    totalAgreedAmount: { type: Number, default: 0, min: 0 },
+    materials: [
+      {
+        materialName: { type: String, required: true, trim: true },
+        costPrice: { type: Number, default: 0, min: 0 },
+        sellPrice: { type: Number, default: 0, min: 0 },
+        quantity: { type: Number, default: 1, min: 1 },
+      },
+    ],
+    payments: [
+      {
+        amount: { type: Number, required: true, min: 0 },
+        collectedBy: { type: String, enum: ['admin', 'artisan'], default: 'admin' },
+        isVerified: { type: Boolean, default: false },
+        date: { type: Date, default: Date.now },
+      },
+    ],
+    media: [
+      {
+        url: { type: String, required: true },
+        stage: { type: String, enum: ['before', 'during', 'after'], default: 'during' },
+        visibleToClient: { type: Boolean, default: true },
+        uploadedBy: { type: String, enum: ['admin', 'artisan'], default: 'admin' },
+      },
+    ],
+    artisanDetails: {
+      artisanId: { type: mongoose.Schema.Types.ObjectId, ref: 'Worker', default: null },
+      agreedWage: { type: Number, default: 0, min: 0 },
+      isWagePaid: { type: Boolean, default: false },
+    },
     assignedWorkers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Worker' }],
     preferredDate: { type: Date, default: null },
     completedAt: { type: Date, default: null },
@@ -34,6 +64,13 @@ projectSchema.pre('validate', async function generateCode(next) {
   } catch (err) {
     this.code = `DW-${Date.now()}`;
   }
+  return next();
+});
+
+projectSchema.pre('validate', async function generateToken(next) {
+  if (this.trackingToken) return next();
+  const crypto = await import('crypto');
+  this.trackingToken = crypto.randomBytes(9).toString('base64url');
   return next();
 });
 

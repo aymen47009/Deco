@@ -12,6 +12,7 @@ const keepComponents = new Set([
   'SiteSettings.tsx',
   'WorkersManager.tsx',
   'WorkerDashboard.tsx',
+  'ClientTrackingPage.tsx',
   'ui.tsx',
 ]);
 
