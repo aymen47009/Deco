@@ -13,10 +13,14 @@ export default function App() {
   useEffect(() => {
     function checkHash() {
       const hash = window.location.hash;
-      if (hash === '#admin') setView('admin');
-      else if (hash === '#worker' || hash === '#artisan') setView('artisan');
+      const path = window.location.pathname;
+      if (hash === '#admin' || path === '/admin') setView('admin');
+      else if (hash === '#worker' || hash === '#artisan' || path === '/worker' || path === '/artisan') setView('artisan');
       else if (hash.startsWith('#track/')) {
         setTrackToken(hash.replace('#track/', ''));
+        setView('track');
+      } else if (path.startsWith('/track/')) {
+        setTrackToken(path.replace('/track/', ''));
         setView('track');
       } else setView('customer');
     }

@@ -5,7 +5,11 @@ const router = Router();
 
 router.get('/track/:trackingToken', async (req, res) => {
   try {
-    const project = await Project.findOne({ trackingToken: req.params.trackingToken });
+    const trackingToken = String(req.params.trackingToken || '').trim();
+    let project = await Project.findOne({ trackingToken });
+    if (!project) {
+      project = await Project.findOne({ code: trackingToken });
+    }
     if (!project) return res.status(404).json({ error: 'Project not found' });
 
     const totalPaid = (project.payments || [])

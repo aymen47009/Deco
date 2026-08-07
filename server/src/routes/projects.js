@@ -114,7 +114,40 @@ router.get('/:id', async (req, res) => {
 
 router.post('/', async (req, res) => {
   try {
-    const project = await new Project(req.body).save();
+    const payload = req.body || {};
+    const rawCustomer = payload.customer || {};
+    const normalizedCustomer = {
+      name: String(rawCustomer.name ?? payload.customerName ?? payload.name ?? '').trim(),
+      phone: String(rawCustomer.phone ?? payload.phone ?? '').trim(),
+      email: String(rawCustomer.email ?? payload.customerEmail ?? '').trim(),
+      address: String(rawCustomer.address ?? payload.customerAddress ?? '').trim(),
+    };
+    const normalizedWorkshopTypes = Array.isArray(payload.workshopTypes)
+      ? payload.workshopTypes.filter(Boolean)
+      : payload.workshopTypes
+        ? [payload.workshopTypes].filter(Boolean)
+        : [];
+    const normalizedSpaceSize = String(payload.spaceSize ?? payload.space ?? '').trim();
+    const normalizedTitle = String(payload.title ?? `طلب جديد: ${normalizedCustomer.name || 'زبون'}`).trim();
+
+    if (!normalizedCustomer.name || !normalizedCustomer.phone) {
+      return res.status(400).json({ error: 'Customer name and phone are required' });
+    }
+    if (!normalizedSpaceSize) {
+      return res.status(400).json({ error: 'Space size is required' });
+    }
+    if (normalizedWorkshopTypes.length === 0) {
+      return res.status(400).json({ error: 'At least one workshop type is required' });
+    }
+
+    const project = await new Project({
+      ...payload,
+      title: normalizedTitle,
+      customer: normalizedCustomer,
+      workshopTypes: normalizedWorkshopTypes,
+      spaceSize: normalizedSpaceSize,
+      totalAgreedAmount: payload.totalAgreedAmount ?? 0,
+    }).save();
     await project.populate('assignedWorkers', 'name role status');
     await project.populate('assignedArtisanId', 'name phone role');
     res.status(201).json({ ...project.toObject(), financials: computeFinancials(project) });

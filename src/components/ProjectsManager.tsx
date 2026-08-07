@@ -240,11 +240,11 @@ function ProjectDetailModal({ project, onClose, onChanged }: { project: Project;
           <div className="pdt-link-box">
             <p className="pdt-link-desc">رابط التتبع الخاص بهذا الزبون. شاركه معه لمتابعة المشروع:</p>
             <div className="pdt-link-row">
-              <input readOnly value={`${window.location.origin}/#track/${p.trackingToken}`} dir="ltr" />
+              <input readOnly value={`${window.location.origin}/track/${p.trackingToken}`} dir="ltr" />
               <button
                 className="btn btn-primary btn-sm"
                 onClick={() => {
-                  navigator.clipboard.writeText(`${window.location.origin}/#track/${p.trackingToken}`);
+                  navigator.clipboard.writeText(`${window.location.origin}/track/${p.trackingToken}`);
                   showToast('تم نسخ الرابط', 'success');
                 }}
               >
